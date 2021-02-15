@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Simple and complete Solid testing utilities that encourage good testing practices.",
   "main": "dist/index.js",
-  "types": "types/index.d.ts",
+  "types": "dist/index.d.ts",
   "license": "MIT",
   "author": "Ryan Carniato",
   "homepage": "https://github.com/ryansolid/solid-testing-library#readme",
@@ -15,7 +15,7 @@
     "url": "https://github.com/ryansolid/solid-testing-library/issues"
   },
   "engines": {
-    "node": ">= 10"
+    "node": ">= 12"
   },
   "keywords": [
     "testing",
