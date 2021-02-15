@@ -4,7 +4,7 @@
 <p>Simple and complete Solid DOM testing utilities that encourage good testing
 practices.</p>
 
-> Inspired completely by [preact-testing-library][preact-testing-library]
+> Inspired completely by [preact-testing-library](https://github.com/testing-library/preact-testing-library)
 
 </div>
 
