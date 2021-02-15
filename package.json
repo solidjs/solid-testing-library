@@ -38,9 +38,10 @@
     "build": "tsc",
     "test": "jest tests",
     "test:watch": "npm test --watch",
-    "test:update": "npm test --updateSnapshot --coverage",
+    "test:coverage": "npm test -- --coverage",
     "setup": "npm install && npm run validate",
-    "validate": "npm run lint && npm test && npm run clean && npm run build"
+    "validate": "npm run test:coverage && npm run clean && npm run build",
+    "report:coverage": "cat ./coverage/lcov.info | ../../node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "dependencies": {
     "@testing-library/dom": "^7.29.4"
@@ -54,6 +55,7 @@
     "@types/jest": "^26.0.0",
     "babel-jest": "^26.6.3",
     "babel-preset-solid": "^0.24.2",
+    "coveralls": "^3.1.0",
     "jest": "^26.0.1",
     "solid-js": "^0.24.7",
     "prettier": "^2.0.5",

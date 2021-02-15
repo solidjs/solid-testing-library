@@ -3,6 +3,7 @@ import { JSX } from "solid-js";
 import { hydrate as solidHydrate, render as solidRender } from "solid-js/web";
 import type { OptionsReceived } from "pretty-format";
 
+/* istanbul ignore next */
 if (!process.env.STL_SKIP_AUTO_CLEANUP) {
   if (typeof afterEach === 'function') {
     afterEach(async () => {
@@ -66,15 +67,6 @@ function render(
         ? el.forEach(e => console.log(prettyDOM(e, maxLength, options)))
         : console.log(prettyDOM(el, maxLength, options)),
     unmount: dispose,
-    asFragment: () => {
-      if (typeof document.createRange === "function") {
-        return document.createRange().createContextualFragment(container!.innerHTML);
-      } else {
-        const template = document.createElement("template");
-        template.innerHTML = container!.innerHTML;
-        return template.content;
-      }
-    },
     ...getQueriesForElement(baseElement, queries)
   } as any;
 }
