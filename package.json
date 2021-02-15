@@ -30,8 +30,7 @@
     "e2e"
   ],
   "files": [
-    "dist",
-    "types"
+    "dist"
   ],
   "scripts": {
     "prepublishOnly": "npm run build",
