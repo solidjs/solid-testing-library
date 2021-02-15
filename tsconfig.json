@@ -10,6 +10,5 @@
     "outDir": "./dist",
     "module": "esnext"
   },
-  "include": ["./src/index.ts"],
-  "exclude": ["node_modules/", "./src/__tests__"]
+  "include": ["src"],
 }
