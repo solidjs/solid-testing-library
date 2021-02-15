@@ -14,10 +14,10 @@ const fetchAMessage = () =>
   });
 
 function ComponentWithLoader() {
-  const [data] = createResource<{ returnedMessage: string }, string>("data", fetchAMessage);
+  const [data] = createResource("data", fetchAMessage);
   return (
     <Show when={!data.loading} fallback={<div>Loading...</div>}>
-      <div data-testid="message">Loaded this message: {data().returnedMessage}!</div>
+      <div data-testid="message">Loaded this message: {data()!.returnedMessage}!</div>
     </Show>
   );
 }
