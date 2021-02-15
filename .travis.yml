@@ -5,5 +5,5 @@ jobs:
     - stage: test
       script:
         - jest --clearCache
-        - npm run setup
+        - npm run validate
         - npm run report:coverage

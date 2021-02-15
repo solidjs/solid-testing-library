@@ -41,7 +41,7 @@
     "test:coverage": "npm test -- --coverage",
     "setup": "npm install && npm run validate",
     "validate": "npm run test:coverage && npm run clean && npm run build",
-    "report:coverage": "cat ./coverage/lcov.info | ../../node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
+    "report:coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "dependencies": {
     "@testing-library/dom": "^7.29.4"
