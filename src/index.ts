@@ -5,16 +5,16 @@ import type { OptionsReceived } from "pretty-format";
 
 /* istanbul ignore next */
 if (!process.env.STL_SKIP_AUTO_CLEANUP) {
-  if (typeof afterEach === 'function') {
+  if (typeof afterEach === "function") {
     afterEach(async () => {
-      await cleanup()
-    })
+      await cleanup();
+    });
     // @ts-ignore
-  } else if (typeof teardown === 'function') {
+  } else if (typeof teardown === "function") {
     // @ts-ignore
     teardown(async () => {
-      await cleanup()
-    })
+      await cleanup();
+    });
   }
 }
 
@@ -36,9 +36,12 @@ function render(
 ): {
   container: HTMLElement;
   baseElement: HTMLElement;
-  debug: (baseElement?: HTMLElement | HTMLElement[], maxLength?: number, options?: OptionsReceived) => void;
+  debug: (
+    baseElement?: HTMLElement | HTMLElement[],
+    maxLength?: number,
+    options?: OptionsReceived
+  ) => void;
   unmount: () => void;
-  asFragment: () => DocumentFragment;
 } & { [P in keyof Queries]: BoundFunction<Queries[P]> } {
   if (!baseElement) {
     // Default to document.body instead of documentElement to avoid output of potentially-large
