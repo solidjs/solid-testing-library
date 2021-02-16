@@ -1,6 +1,6 @@
 {
   "name": "solid-testing-library",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Simple and complete Solid testing utilities that encourage good testing practices.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
