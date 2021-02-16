@@ -33,7 +33,7 @@ function StopWatch() {
   );
 }
 
-const wait = time => new Promise(resolve => setTimeout(resolve, time));
+const wait = (time: number) => new Promise(resolve => setTimeout(resolve, time));
 
 test("unmounts a component", async () => {
   jest.spyOn(console, "error").mockImplementation(() => {});
@@ -51,5 +51,5 @@ test("unmounts a component", async () => {
 
   // Just wait to see if the interval is cleared or not.
   // If it's not, then we'll call setState on an unmounted component and get an error.
-  await wait(() => expect(console.error).not.toHaveBeenCalled());
+  await wait((() => expect(console.error).not.toHaveBeenCalled()) as any);
 });

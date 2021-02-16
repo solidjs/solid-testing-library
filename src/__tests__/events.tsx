@@ -139,6 +139,7 @@ eventTypes.forEach(({ type, events, elementType, init }) => {
 
         render(() => <Dynamic component={elementType} ref={ref} on={{ [eventProp]: spy }} />);
 
+        // @ts-ignore
         fireEvent[eventName](ref, init);
 
         expect(spy).toHaveBeenCalledTimes(1);
@@ -154,7 +155,7 @@ test("onInput works", () => {
     container: { firstChild: input }
   } = render(() => <input type="text" onInput={handler} />);
 
-  fireEvent.input(input, { target: { value: "a" } });
+  fireEvent.input(input!, { target: { value: "a" } });
 
   expect(handler).toHaveBeenCalledTimes(1);
 });
@@ -167,7 +168,7 @@ test("calling `fireEvent` directly works too", () => {
   } = render(() => <button onClick={handleEvent} />);
 
   fireEvent(
-    button,
+    button!,
     new Event("MouseEvent", {
       bubbles: true,
       cancelable: true,

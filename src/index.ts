@@ -1,7 +1,12 @@
-import { getQueriesForElement, prettyDOM, Queries, BoundFunction } from "@testing-library/dom";
-import { JSX } from "solid-js";
+import { getQueriesForElement, prettyDOM } from "@testing-library/dom";
 import { hydrate as solidHydrate, render as solidRender } from "solid-js/web";
-import type { OptionsReceived } from "pretty-format";
+
+import type { Ui, Result, Options, Ref } from "./types";
+
+/**
+ * Shim for the teardown function
+ */
+declare var teardown: Function | undefined;
 
 /* istanbul ignore next */
 if (!process.env.STL_SKIP_AUTO_CLEANUP) {
@@ -9,40 +14,18 @@ if (!process.env.STL_SKIP_AUTO_CLEANUP) {
     afterEach(async () => {
       await cleanup();
     });
-    // @ts-ignore
   } else if (typeof teardown === "function") {
-    // @ts-ignore
     teardown(async () => {
       await cleanup();
     });
   }
 }
 
-const mountedContainers = new Set<{ container: HTMLElement; dispose: () => void }>();
+const mountedContainers = new Set<Ref>();
 
-function render(
-  ui: () => JSX.Element,
-  {
-    container,
-    baseElement = container,
-    queries,
-    hydrate = false
-  }: {
-    container?: HTMLElement;
-    baseElement?: HTMLElement;
-    queries?: Queries;
-    hydrate?: boolean;
-  } = {}
-): {
-  container: HTMLElement;
-  baseElement: HTMLElement;
-  debug: (
-    baseElement?: HTMLElement | HTMLElement[],
-    maxLength?: number,
-    options?: OptionsReceived
-  ) => void;
-  unmount: () => void;
-} & { [P in keyof Queries]: BoundFunction<Queries[P]> } {
+function render(ui: Ui, options: Options = {}): Result {
+  let { container, baseElement = container, queries, hydrate = false } = options;
+
   if (!baseElement) {
     // Default to document.body instead of documentElement to avoid output of potentially-large
     // head elements (such as JSS style blocks) in debug output.
@@ -65,16 +48,16 @@ function render(
   return {
     container,
     baseElement,
-    debug: (el = baseElement, maxLength?: number, options?: OptionsReceived) =>
+    debug: (el = baseElement, maxLength, options) =>
       Array.isArray(el)
         ? el.forEach(e => console.log(prettyDOM(e, maxLength, options)))
         : console.log(prettyDOM(el, maxLength, options)),
     unmount: dispose,
     ...getQueriesForElement(baseElement, queries)
-  } as any;
+  } as Result;
 }
 
-function cleanupAtContainer(ref: { container: HTMLElement; dispose: () => void }) {
+function cleanupAtContainer(ref: Ref) {
   const { container, dispose } = ref;
   dispose();
 

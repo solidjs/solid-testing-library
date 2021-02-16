@@ -2,7 +2,11 @@ import "@testing-library/jest-dom/extend-expect";
 import { createSignal, createEffect } from "solid-js";
 import { fireEvent, render } from "..";
 
-(globalThis as any)._$HYDRATION = {};
+declare global {
+  var _$HYDRATION: Record<string, any>;
+}
+
+globalThis._$HYDRATION = {};
 
 test("render calls createEffect immediately", () => {
   const cb = jest.fn();
