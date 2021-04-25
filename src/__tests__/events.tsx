@@ -128,6 +128,10 @@ const eventTypes = [
   }
 ];
 
+function event(el: HTMLElement, name: string, spy: jest.Mock) {
+  el.addEventListener(name, spy);
+}
+
 eventTypes.forEach(({ type, events, elementType, init }) => {
   describe(`${type} Events`, () => {
     events.forEach(eventName => {
@@ -137,7 +141,8 @@ eventTypes.forEach(({ type, events, elementType, init }) => {
         let ref!: HTMLElement;
         const spy = jest.fn();
 
-        render(() => <Dynamic component={elementType} ref={ref} on={{ [eventProp]: spy }} />);
+        render(() => <Dynamic component={elementType} ref={ref} />);
+        event(ref, eventProp, spy);
 
         // @ts-ignore
         fireEvent[eventName](ref, init);

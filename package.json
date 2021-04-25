@@ -1,18 +1,18 @@
 {
   "name": "solid-testing-library",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Simple and complete Solid testing utilities that encourage good testing practices.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "MIT",
   "author": "Ryan Carniato",
-  "homepage": "https://github.com/ryansolid/solid-testing-library#readme",
+  "homepage": "https://github.com/solidui/solid-testing-library#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ryansolid/solid-testing-library"
+    "url": "https://github.com/solidui/solid-testing-library"
   },
   "bugs": {
-    "url": "https://github.com/ryansolid/solid-testing-library/issues"
+    "url": "https://github.com/solidui/solid-testing-library/issues"
   },
   "engines": {
     "node": ">= 12"
@@ -47,21 +47,22 @@
     "@testing-library/dom": "^7.29.4"
   },
   "devDependencies": {
-    "@babel/cli": "^7.12.16",
-    "@babel/core": "^7.12.16",
-    "@babel/preset-env": "^7.12.16",
-    "@babel/preset-typescript": "7.12.16",
+    "@babel/cli": "^7.13.16",
+    "@babel/core": "^7.13.16",
+    "@babel/preset-env": "^7.13.15",
+    "@babel/preset-typescript": "7.13.0",
     "@testing-library/jest-dom": "^5.11.9",
     "@types/jest": "^26.0.20",
     "babel-jest": "^26.6.3",
-    "babel-preset-solid": "^0.24.2",
+    "babel-preset-solid": "^0.26.0",
     "coveralls": "^3.1.0",
     "jest": "^26.6.3",
     "prettier": "^2.2.1",
     "pretty-format": "^26.6.2",
     "rimraf": "^3.0.2",
-    "solid-js": "^0.24.7",
-    "typescript": "^4.1.5"
+    "solid-jest": "^0.0.3",
+    "solid-js": "^0.26.3",
+    "typescript": "^4.2.4"
   },
   "peerDependencies": {
     "solid-js": "*"
