@@ -42,6 +42,7 @@ as one of your project's `devDependencies`:
 ```
 npm install --save-dev solid-testing-library
 ```
+If you using Jest we recommend using [solid-jest](https://github.com/solidjs/solid-jest) to properly resolve the browser version of Solid as Jest will default to the server version when run in Node.
 
 💡 You may also be interested in installing `@testing-library/jest-dom` so you can use
 [the custom jest matchers](https://github.com/testing-library/jest-dom).
