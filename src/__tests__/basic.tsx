@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/extend-expect";
 import { createSignal, createEffect } from "solid-js";
-import { fireEvent, render } from "..";
+import { fireEvent, render, screen } from "..";
 
 declare global {
   var _$HYDRATION: Record<string, any>;
@@ -24,9 +24,9 @@ test("render calls createEffect immediately", () => {
 test("findByTestId returns the element", async () => {
   let ref!: HTMLDivElement;
 
-  const { findByTestId } = render(() => <div ref={ref} data-testid="foo" />);
+  render(() => <div ref={ref} data-testid="foo" />);
 
-  expect(await findByTestId("foo")).toBe(ref);
+  expect(await screen.findByTestId("foo")).toBe(ref);
 });
 
 test("fireEvent triggers createEffect calls", () => {

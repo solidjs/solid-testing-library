@@ -1,5 +1,5 @@
 import { createSignal, onCleanup } from "solid-js";
-import { fireEvent, render } from "..";
+import { fireEvent, screen, render } from "..";
 
 function StopWatch() {
   const [lapse, setLapse] = createSignal(0);
@@ -38,9 +38,9 @@ const wait = (time: number) => new Promise(resolve => setTimeout(resolve, time))
 test("unmounts a component", async () => {
   jest.spyOn(console, "error").mockImplementation(() => {});
 
-  const { unmount, getByText, container } = render(() => <StopWatch />);
+  const { unmount, container } = render(() => <StopWatch />);
 
-  fireEvent.click(getByText("Start") as Element);
+  fireEvent.click(screen.getByText("Start") as Element);
 
   unmount();
 
