@@ -13,9 +13,9 @@ afterEach(() => {
 test("debug pretty prints the container", () => {
   const HelloWorld = () => <h1>Hello World</h1>;
 
-  const { debug } = render(() => <HelloWorld />);
+  render(() => <HelloWorld />);
 
-  debug();
+  screen.debug();
 
   expect(console.log).toHaveBeenCalledTimes(1);
   expect(console.log).toHaveBeenCalledWith(expect.stringContaining("Hello World"));
@@ -29,9 +29,9 @@ test("debug pretty prints multiple containers", () => {
     </>
   );
 
-  const { debug } = render(() => <HelloWorld />);
+  render(() => <HelloWorld />);
   const multipleElements = screen.getAllByTestId("testId");
-  debug(multipleElements);
+  screen.debug(multipleElements);
   expect(console.log).toHaveBeenCalledTimes(2);
   expect(console.log).toHaveBeenCalledWith(expect.stringContaining("Hello World"));
 });

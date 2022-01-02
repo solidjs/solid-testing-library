@@ -1,5 +1,6 @@
 import { Dynamic } from "solid-js/web";
-import { fireEvent, render } from "..";
+import { render, fireEvent } from "..";
+import userEvent from "@testing-library/user-event";
 
 const eventTypes = [
   {
@@ -160,7 +161,7 @@ test("onInput works", () => {
     container: { firstChild: input }
   } = render(() => <input type="text" onInput={handler} />);
 
-  fireEvent.input(input!, { target: { value: "a" } });
+  userEvent.type(input! as Element, "a");
 
   expect(handler).toHaveBeenCalledTimes(1);
 });
