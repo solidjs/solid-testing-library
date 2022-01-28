@@ -8,7 +8,7 @@
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "outDir": "./dist",
-    "module": "commonjs"
+    "module": "esnext"
   },
   "include": ["src"],
 }
