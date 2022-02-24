@@ -1,6 +1,5 @@
 import type { JSX } from "solid-js";
-import type { OptionsReceived } from "pretty-format";
-import type { Queries, BoundFunction } from "@testing-library/dom";
+import type { Queries, BoundFunction, prettyFormat } from "@testing-library/dom";
 
 export interface Ref {
   container: HTMLElement;
@@ -21,7 +20,7 @@ export type Extra = { [P in keyof Queries]: BoundFunction<Queries[P]> };
 export type DebugFn = (
   baseElement?: HTMLElement | HTMLElement[],
   maxLength?: number,
-  options?: OptionsReceived
+  options?: prettyFormat.OptionsReceived
 ) => void;
 
 export type Result = {
