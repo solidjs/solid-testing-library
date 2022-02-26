@@ -4,10 +4,10 @@ import { render, screen } from "..";
 import userEvent from "@testing-library/user-event";
 
 declare global {
-  var _$HYDRATION: Record<string, any>;
+  var _$HY: Record<string, any>;
 }
 
-globalThis._$HYDRATION = {};
+globalThis._$HY = {};
 
 test("render calls createEffect immediately", () => {
   const cb = jest.fn();
