@@ -53,7 +53,7 @@ function render(ui: Ui, options: Options = {}): Result {
         ? el.forEach(e => console.log(prettyDOM(e, maxLength, options)))
         : console.log(prettyDOM(el, maxLength, options)),
     unmount: dispose,
-    ...getQueriesForElement(baseElement, queries)
+    ...getQueriesForElement(container, queries)
   } as Result;
 }
 
