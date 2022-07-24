@@ -1,5 +1,5 @@
+import type { BoundFunction, prettyFormat, Queries, queries } from "@testing-library/dom";
 import type { JSX } from "solid-js";
-import type { Queries, BoundFunction, prettyFormat } from "@testing-library/dom";
 
 export interface Ref {
   container: HTMLElement;
@@ -15,7 +15,7 @@ export interface Options {
   hydrate?: boolean;
 }
 
-export type Extra = { [P in keyof Queries]: BoundFunction<Queries[P]> };
+export type Extra<Q extends Queries = typeof queries> = { [P in keyof Q]: BoundFunction<Q[P]> };
 
 export type DebugFn = (
   baseElement?: HTMLElement | HTMLElement[],
