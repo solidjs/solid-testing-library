@@ -1,4 +1,4 @@
-import type { JSX } from "solid-js";
+import type { Component } from "solid-js";
 import type { Queries, BoundFunction, prettyFormat } from "@testing-library/dom";
 
 export interface Ref {
@@ -6,7 +6,7 @@ export interface Ref {
   dispose: () => void;
 }
 
-export type Ui = () => JSX.Element;
+export type Ui = Component;
 
 export interface Options {
   container?: HTMLElement;
