@@ -175,10 +175,11 @@ test("calling `fireEvent` directly works too", () => {
 
   fireEvent(
     button!,
-    new Event("MouseEvent", {
+    new MouseEvent("click", {
       bubbles: true,
-      cancelable: true,
-      button: 0
-    } as any)
+      cancelable: true
+    })
   );
+
+  expect(handleEvent).toHaveBeenCalledTimes(1);
 });
