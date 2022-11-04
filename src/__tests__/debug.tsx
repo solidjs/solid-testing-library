@@ -43,7 +43,7 @@ test("allows same arguments as prettyDOM", () => {
   expect(console.log).toHaveBeenCalledTimes(1);
   // @ts-ignore
   expect(console.log.mock.calls[0]).toMatchInlineSnapshot(`
-    Array [
+    [
       "<div>
     ...",
     ]

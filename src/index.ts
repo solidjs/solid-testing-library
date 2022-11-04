@@ -45,6 +45,8 @@ function render(ui: Ui, options: Options = {}): Result {
   // they're passing us a custom container or not.
   mountedContainers.add({ container, dispose });
 
+  const queryHelpers = getQueriesForElement(baseElement, queries)
+
   return {
     container,
     baseElement,
@@ -53,7 +55,7 @@ function render(ui: Ui, options: Options = {}): Result {
         ? el.forEach(e => console.log(prettyDOM(e, maxLength, options)))
         : console.log(prettyDOM(el, maxLength, options)),
     unmount: dispose,
-    ...getQueriesForElement(baseElement, queries)
+    ...queryHelpers
   } as Result;
 }
 
