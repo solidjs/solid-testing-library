@@ -10,7 +10,7 @@ declare global {
 globalThis._$HY = {};
 
 test("render calls createEffect immediately", () => {
-  const cb = jest.fn();
+  const cb = vi.fn();
 
   function Comp() {
     createEffect(cb);
@@ -31,7 +31,7 @@ test("findByTestId returns the element", async () => {
 });
 
 test("userEvent triggers createEffect calls", async () => {
-  const cb = jest.fn();
+  const cb = vi.fn();
 
   function Counter() {
     createEffect(() => (count(), cb()));
@@ -52,7 +52,7 @@ test("userEvent triggers createEffect calls", async () => {
 });
 
 test("calls to hydrate will run createEffects", () => {
-  const cb = jest.fn();
+  const cb = vi.fn();
 
   function Comp() {
     createEffect(cb);

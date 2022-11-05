@@ -129,7 +129,7 @@ const eventTypes = [
   }
 ];
 
-function event(el: HTMLElement, name: string, spy: jest.Mock) {
+function event(el: HTMLElement, name: string, spy: vi.Mock) {
   el.addEventListener(name, spy);
 }
 
@@ -140,7 +140,7 @@ eventTypes.forEach(({ type, events, elementType, init }) => {
 
       it(`triggers ${eventProp}`, () => {
         let ref!: HTMLElement;
-        const spy = jest.fn();
+        const spy = vi.fn();
 
         render(() => <Dynamic component={elementType} ref={ref} />);
         event(ref, eventProp, spy);
@@ -155,7 +155,7 @@ eventTypes.forEach(({ type, events, elementType, init }) => {
 });
 
 test("onInput works", async () => {
-  const handler = jest.fn();
+  const handler = vi.fn();
 
   const {
     container: { firstChild: input }
@@ -167,7 +167,7 @@ test("onInput works", async () => {
 });
 
 test("calling `fireEvent` directly works too", () => {
-  const handleEvent = jest.fn();
+  const handleEvent = vi.fn();
 
   const {
     container: { firstChild: button }

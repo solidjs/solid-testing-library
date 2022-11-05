@@ -37,7 +37,7 @@ function StopWatch() {
 const wait = (time: number) => new Promise(resolve => setTimeout(resolve, time));
 
 test("unmounts a component", async () => {
-  jest.spyOn(console, "error").mockImplementation(() => {});
+  vi.spyOn(console, "error").mockImplementation(() => {});
 
   const { unmount, container } = render(() => <StopWatch />);
 

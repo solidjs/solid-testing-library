@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "target": "esnext",
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["es2020", "dom"],
+    "skipLibCheck": true,
+    "target": "es2020",
     "newLine": "LF",
     "moduleResolution": "node",
     "strict": true,
