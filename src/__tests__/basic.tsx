@@ -30,7 +30,7 @@ test("findByTestId returns the element", async () => {
   expect(await screen.findByTestId("foo")).toBe(ref);
 });
 
-test("userEvent triggers createEffect calls", () => {
+test("userEvent triggers createEffect calls", async () => {
   const cb = jest.fn();
 
   function Counter() {
@@ -46,7 +46,7 @@ test("userEvent triggers createEffect calls", () => {
   } = render(() => <Counter />);
 
   cb.mockClear();
-  userEvent.click(buttonNode! as Element);
+  await userEvent.click(buttonNode! as Element);
   expect(buttonNode).toHaveTextContent("1");
   expect(cb).toHaveBeenCalledTimes(1);
 });

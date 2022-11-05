@@ -154,14 +154,14 @@ eventTypes.forEach(({ type, events, elementType, init }) => {
   });
 });
 
-test("onInput works", () => {
+test("onInput works", async () => {
   const handler = jest.fn();
 
   const {
     container: { firstChild: input }
   } = render(() => <input type="text" onInput={handler} />);
 
-  userEvent.type(input! as Element, "a");
+  await userEvent.type(input! as Element, "a");
 
   expect(handler).toHaveBeenCalledTimes(1);
 });
