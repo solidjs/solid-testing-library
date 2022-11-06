@@ -63,3 +63,11 @@ test("calls to hydrate will run createEffects", () => {
 
   expect(cb).toHaveBeenCalledTimes(1);
 });
+
+test("queries should not return elements outside of the container", () => {
+  const { container, getAllByText } = render(() => <div>Some text...</div>);
+  const falseContainer = document.createElement("p");
+  falseContainer.textContent = "Some text...";
+  container.parentNode!.insertBefore(falseContainer, getAllByText("Some text...")[0].parentNode);
+  expect(getAllByText("Some text...")[0] === container.childNodes[0]).toBe(true);
+});

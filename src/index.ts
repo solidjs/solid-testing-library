@@ -45,7 +45,7 @@ function render(ui: Ui, options: Options = {}): Result {
   // they're passing us a custom container or not.
   mountedContainers.add({ container, dispose });
 
-  const queryHelpers = getQueriesForElement(baseElement, queries)
+  const queryHelpers = getQueriesForElement(container, queries)
 
   return {
     container,
