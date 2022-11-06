@@ -1,6 +1,7 @@
 import { Dynamic } from "solid-js/web";
 import { render, fireEvent } from "..";
 import userEvent from "@testing-library/user-event";
+import type { Mock } from "vitest";
 
 const eventTypes = [
   {
@@ -129,7 +130,7 @@ const eventTypes = [
   }
 ];
 
-function event(el: HTMLElement, name: string, spy: vi.Mock) {
+function event(el: HTMLElement, name: string, spy: Mock) {
   el.addEventListener(name, spy);
 }
 

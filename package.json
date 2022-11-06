@@ -14,6 +14,7 @@
   },
   "license": "MIT",
   "author": "Ryan Carniato",
+  "maintainers": ["Alex Lohr"],
   "homepage": "https://github.com/solidjs/solid-testing-library#readme",
   "repository": {
     "type": "git",
@@ -43,11 +44,12 @@
   "scripts": {
     "prepublishOnly": "npm run build",
     "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "typecheck": "tsc --noEmit; tsc --noEmit --project src/__tests__/tsconfig.json",
     "test": "vitest",
     "test:watch": "npm test --watch",
     "test:coverage": "npm test -- --coverage",
     "setup": "npm install && npm run validate",
-    "validate": "npm run test:coverage && npm run build",
+    "validate": "npm run typecheck && npm run test:coverage && npm run build",
     "report:coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "dependencies": {

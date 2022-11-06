@@ -5,7 +5,7 @@ import { screen, render } from "..";
 function StopWatch() {
   const [lapse, setLapse] = createSignal(0);
   const [running, setRunning] = createSignal(false);
-  let timer: number;
+  let timer: ReturnType<typeof setInterval>;
 
   const handleRunClick = () => {
     if (running()) {
