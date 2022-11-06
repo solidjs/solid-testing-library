@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/extend-expect";
 import { screen, render } from "..";
 
 beforeEach(() => {
-  jest.spyOn(console, "log").mockImplementation(() => {});
+  vi.spyOn(console, "log").mockImplementation(() => {});
 });
 
 afterEach(() => {

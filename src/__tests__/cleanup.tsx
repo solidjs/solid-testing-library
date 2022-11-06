@@ -3,7 +3,7 @@ import { onCleanup } from "solid-js";
 import { cleanup, render } from "..";
 
 test("cleans up the document", () => {
-  const spy = jest.fn();
+  const spy = vi.fn();
   const divId = "my-div";
 
   function Test() {
