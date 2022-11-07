@@ -14,7 +14,7 @@ export default defineConfig({
     transformMode: {
       web: [/\.[jt]sx?$/]
     },
-    include: 'src/__tests__/*.tsx'
+    include: "src/__tests__/*.tsx"
   },
   resolve: {
     conditions: ["browser", "development"]

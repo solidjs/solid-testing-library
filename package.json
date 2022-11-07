@@ -1,6 +1,6 @@
 {
   "name": "solid-testing-library",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Simple and complete Solid testing utilities that encourage good testing practices.",
   "type": "module",
   "main": "./dist/index.js",
@@ -14,7 +14,9 @@
   },
   "license": "MIT",
   "author": "Ryan Carniato",
-  "maintainers": ["Alex Lohr"],
+  "maintainers": [
+    "Alex Lohr"
+  ],
   "homepage": "https://github.com/solidjs/solid-testing-library#readme",
   "repository": {
     "type": "git",
@@ -49,6 +51,7 @@
     "test:watch": "npm test --watch",
     "test:coverage": "npm test -- --coverage",
     "setup": "npm install && npm run validate",
+    "prettier": "prettier -w src/**/* ./*.json ./vitest.config.js",
     "validate": "npm run typecheck && npm run test:coverage && npm run build",
     "report:coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },

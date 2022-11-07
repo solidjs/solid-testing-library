@@ -1,21 +1,13 @@
 import { getQueriesForElement, prettyDOM } from "@testing-library/dom";
+import { createRoot, getOwner } from "solid-js";
 import { hydrate as solidHydrate, render as solidRender } from "solid-js/web";
 
-import type { Ui, Result, Options, Ref } from "./types";
-
-/**
- * Shim for the teardown function
- */
-declare var teardown: Function | undefined;
+import type { Ui, Result, Options, Ref, RenderHookResult, RenderHookOptions } from "./types";
 
 /* istanbul ignore next */
 if (!process.env.STL_SKIP_AUTO_CLEANUP) {
   if (typeof afterEach === "function") {
     afterEach(async () => {
-      await cleanup();
-    });
-  } else if (typeof teardown === "function") {
-    teardown(async () => {
       await cleanup();
     });
   }
@@ -24,7 +16,7 @@ if (!process.env.STL_SKIP_AUTO_CLEANUP) {
 const mountedContainers = new Set<Ref>();
 
 function render(ui: Ui, options: Options = {}): Result {
-  let { container, baseElement = container, queries, hydrate = false } = options;
+  let { container, baseElement = container, queries, hydrate = false, wrapper } = options;
 
   if (!baseElement) {
     // Default to document.body instead of documentElement to avoid output of potentially-large
@@ -36,9 +28,13 @@ function render(ui: Ui, options: Options = {}): Result {
     container = baseElement.appendChild(document.createElement("div"));
   }
 
+  const wrappedUi: Ui = typeof wrapper === 'function'
+    ? () => wrapper!({ children: ui() })
+    : ui;
+
   const dispose = hydrate
-    ? ((solidHydrate(ui, container) as unknown) as () => void)
-    : solidRender(ui, container);
+    ? ((solidHydrate(wrappedUi, container) as unknown) as () => void)
+    : solidRender(wrappedUi, container);
 
   // We'll add it to the mounted containers regardless of whether it's actually
   // added to document.body so the cleanup method works regardless of whether
@@ -48,6 +44,7 @@ function render(ui: Ui, options: Options = {}): Result {
   const queryHelpers = getQueriesForElement(container, queries)
 
   return {
+    asFragment: () => container?.innerHTML as string,
     container,
     baseElement,
     debug: (el = baseElement, maxLength, options) =>
@@ -59,11 +56,20 @@ function render(ui: Ui, options: Options = {}): Result {
   } as Result;
 }
 
+export function renderHook<A extends any[], R>(hook: (...args: A) => R, options?: RenderHookOptions<A>): RenderHookResult<R> {
+  const initialProps: A | [] = Array.isArray(options) ? options : options?.initialProps || [];
+  const [dispose, owner, result] = createRoot((dispose) => [dispose, getOwner(), hook(...initialProps as A)]);
+
+  mountedContainers.add({ dispose });
+
+  return { result, cleanup: dispose, owner };
+}
+
 function cleanupAtContainer(ref: Ref) {
   const { container, dispose } = ref;
   dispose();
 
-  if (container.parentNode === document.body) {
+  if (container?.parentNode === document.body) {
     document.body.removeChild(container);
   }
 
