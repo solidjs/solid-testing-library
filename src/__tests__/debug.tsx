@@ -29,9 +29,9 @@ test("debug pretty prints multiple containers", () => {
     </>
   );
 
-  render(() => <HelloWorld />);
-  const multipleElements = screen.getAllByTestId("testId");
-  screen.debug(multipleElements);
+  const { debug, getAllByTestId } = render(() => <HelloWorld />);
+  const multipleElements = getAllByTestId("testId");
+  debug(multipleElements);
   expect(console.log).toHaveBeenCalledTimes(2);
   expect(console.log).toHaveBeenCalledWith(expect.stringContaining("Hello World"));
 });

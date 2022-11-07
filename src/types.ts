@@ -1,9 +1,9 @@
-import type { JSX } from "solid-js";
+import type { Component, JSX, Owner } from "solid-js";
 import { queries } from "@testing-library/dom";
 import type { Queries, BoundFunctions, prettyFormat } from "@testing-library/dom";
 
 export interface Ref {
-  container: HTMLElement;
+  container?: HTMLElement;
   dispose: () => void;
 }
 
@@ -14,6 +14,7 @@ export interface Options {
   baseElement?: HTMLElement;
   queries?: Queries & typeof queries;
   hydrate?: boolean;
+  wrapper?: Component<{ children: JSX.Element }>;
 }
 
 export type DebugFn = (
@@ -23,8 +24,19 @@ export type DebugFn = (
 ) => void;
 
 export type Result = BoundFunctions<typeof queries> & {
+  asFragment: () => string;
   container: HTMLElement;
   baseElement: HTMLElement;
   debug: DebugFn;
   unmount: () => void;
-} ;
+};
+
+export type RenderHookOptions<A extends any[]> = {
+  initialProps?: A
+} | A;
+
+export type RenderHookResult<R> = {
+  result: R;
+  owner: Owner | null;
+  cleanup: () => void;
+};

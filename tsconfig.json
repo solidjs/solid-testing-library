@@ -13,5 +13,5 @@
     "outDir": "./dist",
     "module": "commonjs"
   },
-  "include": ["src/index.ts", "src/types.ts"],
+  "include": ["src/index.ts", "src/types.ts"]
 }
