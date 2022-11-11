@@ -60,15 +60,13 @@ There are several key differences, though:
 
 ⚠️ The `render` function takes in a function that returns a Solid Component, rather than simply the component itself.
 
-**Preact Testing Library**
-
 ```tsx
+// With @testing-library/preact
 const results = render(<YourComponent />, options);
 ```
 
-**Solid Testing Library**
-
 ```tsx
+// With solid-testing-library
 const results = render(() => <YourComponent />, options);
 ```
 
