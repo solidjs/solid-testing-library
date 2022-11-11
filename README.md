@@ -56,7 +56,21 @@ If you using Jest we recommend using [solid-jest](https://github.com/solidjs/sol
 
 See the [docs](https://testing-library.com/docs/preact-testing-library/intro) over at the Testing Library website.
 
-There are two key difference, though:
+There are several key differences, though:
+
+⚠️ The `render` function takes in a function that returns a Solid Component, rather than simply the component itself.
+
+**Preact Testing Library**
+
+```tsx
+const results = render(<YourComponent />, options);
+```
+
+**Solid Testing Library**
+
+```tsx
+const results = render(() => <YourComponent />, options);
+```
 
 ⚠️ Solid.js does *not* rerender, it merely executes side effects triggered by reactive state that change the DOM, therefore there is no rerender method. You can use global signals to manipulate your test component in a way that causes it to update.
 
