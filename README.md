@@ -44,7 +44,7 @@ This module is distributed via npm which is bundled with node and should be inst
 as one of your project's `devDependencies`:
 
 ```sh
-npm install --save-dev solid-testing-library
+npm install --save-dev @solidjs/testing-library
 ```
 
 If you using Jest we recommend using [solid-jest](https://github.com/solidjs/solid-jest) to properly resolve the browser version of Solid as Jest will default to the server version when run in Node.
