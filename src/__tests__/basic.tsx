@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/extend-expect";
-import { createSignal, createEffect } from "solid-js";
+import { createSignal, createEffect, createContext, useContext, ParentComponent } from "solid-js";
 import { render, renderHook, screen } from "..";
 import userEvent from "@testing-library/user-event";
 
@@ -79,12 +79,23 @@ test("wrapper option works correctly", () => {
   expect(asFragment()).toBe("<div>Wrapper <div>Component</div></div>");
 });
 
+test("wrapper option includes context", async () => {
+  const context = createContext<string>("test");
+  const Wrapper: ParentComponent = props => (
+    <context.Provider value="works">{props.children}</context.Provider>
+  );
+  const { asFragment } = render(() => <div>{useContext(context)}</div>, { wrapper: Wrapper });
+  expect(asFragment()).toBe("<div>works</div>");
+});
+
 test("renderHook works correctly", () => {
   const createDate = () => {
-    const [date, setDate] = createSignal(new Date());    
-    return [date, (d: Date) => d ? setDate(d) : setDate(new Date())] as const;
-  }
-  const { result: [ date, setDate ] } = renderHook(createDate);
+    const [date, setDate] = createSignal(new Date());
+    return [date, (d: Date) => (d ? setDate(d) : setDate(new Date()))] as const;
+  };
+  const {
+    result: [date, setDate]
+  } = renderHook(createDate);
   expect(date()).toBeInstanceOf(Date);
   const newDate = new Date();
   setDate(newDate);
