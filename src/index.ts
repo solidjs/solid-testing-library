@@ -1,5 +1,5 @@
 import { getQueriesForElement, prettyDOM } from "@testing-library/dom";
-import { createRoot, getOwner } from "solid-js";
+import { createComponent, createRoot, getOwner } from "solid-js";
 import { hydrate as solidHydrate, render as solidRender } from "solid-js/web";
 
 import type { Ui, Result, Options, Ref, RenderHookResult, RenderHookOptions } from "./types";
@@ -29,7 +29,7 @@ function render(ui: Ui, options: Options = {}): Result {
   }
 
   const wrappedUi: Ui = typeof wrapper === 'function'
-    ? () => wrapper!({ children: ui() })
+    ? () => createComponent(wrapper!, { get children() { return createComponent(ui, {}); } })
     : ui;
 
   const dispose = hydrate
