@@ -52,6 +52,10 @@ If you using Jest we recommend using [solid-jest](https://github.com/solidjs/sol
 💡 If you are using Jest or vitest, you may also be interested in installing `@testing-library/jest-dom` so you can use
 [the custom jest matchers](https://github.com/testing-library/jest-dom).
 
+## Integration with Vite
+
+A working Vite template setup with `solid-testing-library` and TypeScript support can be found [here](https://github.com/solidjs/templates/tree/master/ts-vitest).
+
 ## Docs
 
 See the [docs](https://testing-library.com/docs/preact-testing-library/intro) over at the Testing Library website.
