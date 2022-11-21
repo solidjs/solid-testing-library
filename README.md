@@ -7,7 +7,7 @@ practices.</p>
 
 > Inspired completely by [preact-testing-library](https://github.com/testing-library/preact-testing-library)
 
-[![Coverage Status](https://img.shields.io/coveralls/github/ryansolid/solid-testing-library.svg?style=flat)](https://coveralls.io/github/ryansolid/solid-testing-library?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/ryansolid/solid-testing-library/badge.svg?branch=main)](https://coveralls.io/github/ryansolid/solid-testing-library?branch=main)
 [![NPM Version](https://img.shields.io/npm/v/solid-testing-library.svg?style=flat)](https://www.npmjs.com/package/solid-testing-library)
 [![](https://img.shields.io/npm/dm/solid-testing-library.svg?style=flat)](https://www.npmjs.com/package/solid-testing-library)
 [![Discord](https://img.shields.io/discord/722131463138705510)](https://discord.com/invite/solidjs)
