@@ -54,7 +54,7 @@ If you using Jest we recommend using [solid-jest](https://github.com/solidjs/sol
 
 ## Integration with Vite
 
-A working Vite template setup with `solid-testing-library` and TypeScript support can be found [here](https://github.com/solidjs/templates/tree/master/ts-vitest).
+A working Vite template setup with `solid-testing-library` and TypeScript support can be found [here](https://github.com/solidjs/solid-start/tree/main/examples/with-vitest).
 
 ## Docs
 
