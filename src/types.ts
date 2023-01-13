@@ -32,7 +32,8 @@ export type Result = BoundFunctions<typeof queries> & {
 };
 
 export type RenderHookOptions<A extends any[]> = {
-  initialProps?: A
+  initialProps?: A;
+  wrapper?: Component<{ children: JSX.Element }>;
 } | A;
 
 export type RenderHookResult<R> = {

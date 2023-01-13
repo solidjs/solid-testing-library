@@ -1,5 +1,5 @@
 import { getQueriesForElement, prettyDOM } from "@testing-library/dom";
-import { createComponent, createRoot, getOwner } from "solid-js";
+import { ComponentProps, createComponent, createRoot, getOwner, JSX } from "solid-js";
 import { hydrate as solidHydrate, render as solidRender } from "solid-js/web";
 
 import type { Ui, Result, Options, Ref, RenderHookResult, RenderHookOptions } from "./types";
@@ -56,9 +56,24 @@ function render(ui: Ui, options: Options = {}): Result {
   } as Result;
 }
 
-export function renderHook<A extends any[], R>(hook: (...args: A) => R, options?: RenderHookOptions<A>): RenderHookResult<R> {
+export function renderHook<A extends any[], R>(
+  hook: (...args: A) => R,
+  options?: RenderHookOptions<A>
+): RenderHookResult<R> {
   const initialProps: A | [] = Array.isArray(options) ? options : options?.initialProps || [];
-  const [dispose, owner, result] = createRoot((dispose) => [dispose, getOwner(), hook(...initialProps as A)]);
+  const [dispose, owner, result] = createRoot((dispose) => {
+    if (typeof options === 'object' && 'wrapper' in options && typeof options.wrapper === "function") {
+      let result: ReturnType<typeof hook>;
+      options.wrapper({ get children() {
+        return createComponent(() => {
+          result = hook(...initialProps as A);
+          return null;
+        }, {});
+      } });
+      return [dispose, getOwner(), result!]
+    }
+    return [dispose, getOwner(), hook(...initialProps as A)]
+  });
 
   mountedContainers.add({ dispose });
 

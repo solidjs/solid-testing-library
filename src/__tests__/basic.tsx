@@ -2,6 +2,7 @@ import "@testing-library/jest-dom/extend-expect";
 import { createSignal, createEffect, createContext, useContext, ParentComponent } from "solid-js";
 import { render, renderHook, screen } from "..";
 import userEvent from "@testing-library/user-event";
+import { m } from "vitest/dist/index-2f5b6168";
 
 declare global {
   var _$HY: Record<string, any>;
@@ -100,4 +101,24 @@ test("renderHook works correctly", () => {
   const newDate = new Date();
   setDate(newDate);
   expect(date()).toBe(newDate);
+});
+
+test("renderHook accepts hook props as array parameter", () => {
+  const { result } = renderHook(opts => opts, ["option value"]);
+  expect(result).toBe("option value");
+});
+
+test("renderHook accepts hook props as option value", () => {
+  const { result } = renderHook(opts => opts, { initialProps: ["option value"] });
+  expect(result).toBe("option value");
+});
+
+test("wrapper context is available in renderHook", () => {
+  const context = createContext("initial value");
+  const testHook = () => useContext(context);
+  const Wrapper: ParentComponent = props => (
+    <context.Provider value="context value">{props.children}</context.Provider>
+  );
+  const { result } = renderHook(testHook, { wrapper: Wrapper });
+  expect(result).toBe("context value");
 });
