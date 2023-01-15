@@ -1,8 +1,8 @@
 import { getQueriesForElement, prettyDOM } from "@testing-library/dom";
-import { ComponentProps, createComponent, createRoot, getOwner, JSX } from "solid-js";
+import { Accessor, ComponentProps, createComponent, createRoot, createSignal, getOwner, JSX, onMount, Setter } from "solid-js";
 import { hydrate as solidHydrate, render as solidRender } from "solid-js/web";
 
-import type { Ui, Result, Options, Ref, RenderHookResult, RenderHookOptions } from "./types";
+import type { Ui, Result, Options, Ref, RenderHookResult, RenderHookOptions, RenderDirectiveOptions, RenderDirectiveResult } from "./types";
 
 /* istanbul ignore next */
 if (!process.env.STL_SKIP_AUTO_CLEANUP) {
@@ -78,6 +78,26 @@ export function renderHook<A extends any[], R>(
   mountedContainers.add({ dispose });
 
   return { result, cleanup: dispose, owner };
+}
+
+export function renderDirective<A extends any, U extends A, E extends HTMLElement>(
+  directive: (ref: E, arg: Accessor<U>) => void,
+  options?: RenderDirectiveOptions<U, E>
+): RenderDirectiveResult<U> {
+  const [arg, setArg] = createSignal(options?.initialValue as U);
+  return Object.assign(render(() => {
+    const targetElement = options?.targetElement &&
+      (options.targetElement instanceof HTMLElement
+        ? options.targetElement
+        : typeof options.targetElement === 'string'
+        ? document.createElement(options.targetElement)
+        : typeof options.targetElement === 'function'
+        ? options.targetElement()
+        : undefined) ||
+      document.createElement('div');
+    onMount(() => directive(targetElement as E, arg as Accessor<U>));
+    return targetElement;
+  }, options), { arg, setArg });
 }
 
 function cleanupAtContainer(ref: Ref) {

@@ -1,4 +1,4 @@
-import type { Component, JSX, Owner } from "solid-js";
+import type { Accessor, Component, JSX, Owner, Setter } from "solid-js";
 import { queries } from "@testing-library/dom";
 import type { Queries, BoundFunctions, prettyFormat } from "@testing-library/dom";
 
@@ -40,4 +40,14 @@ export type RenderHookResult<R> = {
   result: R;
   owner: Owner | null;
   cleanup: () => void;
+};
+
+export type RenderDirectiveOptions<A extends any, E extends HTMLElement = HTMLDivElement> = Options & {
+  initialValue?: A;
+  targetElement?: Lowercase<E['nodeName']> | E | (() => E);
+};
+
+export type RenderDirectiveResult<A extends any> = Result & {
+  arg: Accessor<A>,
+  setArg: Setter<A>
 };

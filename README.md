@@ -80,6 +80,59 @@ Solid.js' reactive changes are pretty instantaneous, so there is rarely need to 
 
 ⚠️ Solid.js external reactive state does not require any DOM elements to run in, so our `renderHook` call has no `container`, `baseElement` or queries in its options or return value. Instead, it has an `owner` to be used with [`runWithOwner`](https://www.solidjs.com/docs/latest/api#runwithowner) if required. It also exposes a `cleanup` function, though this is already automatically called after the test is finished.
 
+```ts
+function renderHook<Args extends any[], Result>(
+  hook: (...args: Args) => Result,
+  options: {
+    initialProps?: Args,
+    wrapper?: Component<{ children: JSX.Element }>
+  }
+) => {
+  result: Result;
+  owner: Owner | null;
+  cleanup: () => void;
+}
+```
+
+This can be used to easily test a hook / primitive:
+
+```ts
+const { result } = renderHook(createResult);
+expect(result).toBe(true);
+```
+
+⚠️ Solid.js supports [custom directives](https://www.solidjs.com/docs/latest/api#use___), which is a convenient pattern to tie custom behavior to elements, so we also have a `renderDirective` call, which augments `renderHook` to take a directive as first argument, accept an `initialValue` for the argument and a `targetElement` (string, HTMLElement or function returning a HTMLElement) in the `options` and also returns `arg` and `setArg` to read and manipulate the argument of the directive.
+
+```ts
+function renderDirective<
+  Arg extends any,
+  Elem extends HTMLElement
+>(
+  directive: (ref: Elem, arg: Accessor<Arg>) => void,
+  options?: {
+    ...renderOptions,
+    initialValue: Arg,
+    targetElement: 
+      | Lowercase<Elem['nodeName']>
+      | Elem
+      | (() => Elem)
+  }
+): Result & { arg: Accessor<Arg>, setArg: Setter<Arg> };
+```
+
+This allows for very effective and concise testing of directives:
+
+```ts
+const { asFragment, setArg } = renderDirective(myDirective);
+expect(asFragment()).toBe(
+  '<div data-directive="works"></div>'
+);
+setArg("perfect");
+expect(asFragment()).toBe(
+  '<div data-directive="perfect"></div>'
+);
+```
+
 ## Issues
 
 If you find any issues, please [check on the issues page](https://github.com/solidjs/solid-testing-library/issues) if they are already known. If not, opening an issue will be much appreciated, even more so if it contains a

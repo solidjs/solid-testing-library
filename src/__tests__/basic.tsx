@@ -1,8 +1,15 @@
 import "@testing-library/jest-dom/extend-expect";
-import { createSignal, createEffect, createContext, useContext, ParentComponent } from "solid-js";
-import { render, renderHook, screen } from "..";
+import {
+  createSignal,
+  createEffect,
+  createContext,
+  useContext,
+  ParentComponent,
+  Accessor
+} from "solid-js";
+import type { JSX } from "solid-js";
+import { render, renderDirective, renderHook, screen } from "..";
 import userEvent from "@testing-library/user-event";
-import { m } from "vitest/dist/index-2f5b6168";
 
 declare global {
   var _$HY: Record<string, any>;
@@ -121,4 +128,38 @@ test("wrapper context is available in renderHook", () => {
   );
   const { result } = renderHook(testHook, { wrapper: Wrapper });
   expect(result).toBe("context value");
+});
+
+declare module "solid-js" {
+  namespace JSX {
+    interface Directives {
+      noArgDirective: boolean;
+      argDirective: string;
+    }
+  }
+}
+
+type NoArgDirectiveArg = Accessor<JSX.Directives["noArgDirective"]>;
+
+test("renderDirective works for directives without an argument", () => {
+  const noArgDirective: (ref: HTMLElement, arg: NoArgDirectiveArg) => void = (ref: HTMLElement) => {
+    ref.dataset.directive = "works";
+  };
+  const { asFragment } = renderDirective(noArgDirective);
+  expect(asFragment()).toBe('<div data-directive="works"></div>');
+});
+
+test("renderDirective works for directives with argument", () => {
+  const argDirective = (ref: HTMLSpanElement, arg: Accessor<string>) => {
+    createEffect(() => {
+      ref.dataset.directive = arg();
+    });
+  };
+  const { asFragment, setArg } = renderDirective(argDirective, {
+    initialValue: "initial value",
+    targetElement: "span"
+  });
+  expect(asFragment()).toBe('<span data-directive="initial value"></span>');
+  setArg("updated value");
+  expect(asFragment()).toBe('<span data-directive="updated value"></span>');
 });
