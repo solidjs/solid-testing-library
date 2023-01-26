@@ -174,12 +174,12 @@ test("calling `fireEvent` directly works too", () => {
     container: { firstChild: button }
   } = render(() => <button onClick={handleEvent} />);
 
-  fireEvent(
-    button!,
-    new Event("MouseEvent", {
-      bubbles: true,
-      cancelable: true,
-      button: 0
-    } as any)
-  );
+  const event = new MouseEvent("click", {
+    bubbles: true,
+    cancelable: true
+  });
+
+  fireEvent(button!, event);
+
+  expect(handleEvent).toHaveBeenCalledWith(event);
 });
