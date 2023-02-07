@@ -149,6 +149,22 @@ test("renderDirective works for directives without an argument", () => {
   expect(asFragment()).toBe('<div data-directive="works"></div>');
 });
 
+test("renderDirective accepts different targetElement types", () => {
+  const noArgDirective: (ref: HTMLElement, arg: NoArgDirectiveArg) => void = (ref: HTMLElement) => {
+    ref.dataset.directive = "works";
+  };
+  const { asFragment: getHtml1 } = renderDirective(noArgDirective, { targetElement: "span" });
+  expect(getHtml1()).toBe('<span data-directive="works"></span>');
+  const button = document.createElement("button");
+  const { asFragment: getHtml2 } = renderDirective(noArgDirective, { targetElement: button });
+  expect(getHtml2()).toBe('<button data-directive="works"></button>');
+  const getH3 = () => document.createElement("h3");
+  const { asFragment: getHtml3 } = renderDirective(noArgDirective, { targetElement: getH3 });
+  expect(getHtml3()).toBe('<h3 data-directive="works"></h3>');
+  const { asFragment: getHtml4 } = renderDirective(noArgDirective, { targetElement: {} });
+  expect(getHtml4()).toBe('<div data-directive="works"></div>');
+});
+
 test("renderDirective works for directives with argument", () => {
   const argDirective = (ref: HTMLSpanElement, arg: Accessor<string>) => {
     createEffect(() => {
