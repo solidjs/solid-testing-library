@@ -1,8 +1,27 @@
 import { getQueriesForElement, prettyDOM } from "@testing-library/dom";
-import { Accessor, ComponentProps, createComponent, createRoot, createSignal, getOwner, JSX, onMount, Setter } from "solid-js";
+import {
+  Accessor,
+  createComponent,
+  createRoot,
+  createSignal,
+  getOwner,
+  onError,
+  onMount,
+  Owner,
+  runWithOwner,
+} from "solid-js";
 import { hydrate as solidHydrate, render as solidRender } from "solid-js/web";
 
-import type { Ui, Result, Options, Ref, RenderHookResult, RenderHookOptions, RenderDirectiveOptions, RenderDirectiveResult } from "./types";
+import type {
+  Ui,
+  Result,
+  Options,
+  Ref,
+  RenderHookResult,
+  RenderHookOptions,
+  RenderDirectiveOptions,
+  RenderDirectiveResult
+} from "./types";
 
 /* istanbul ignore next */
 if (!process.env.STL_SKIP_AUTO_CLEANUP) {
@@ -20,7 +39,7 @@ const mountedContainers = new Set<Ref>();
  * @param ui {Ui} a function calling the component
  * @param options {Options} test options
  * @returns {Result} references and tools to test the component
- * 
+ *
  * ```ts
  * const { getByText } = render(() => <App />, { wrapper: I18nProvider });
  * const button = getByText('Accept');
@@ -31,7 +50,7 @@ const mountedContainers = new Set<Ref>();
  * - `options.queries` - custom queries (see https://testing-library.com/docs/queries/about)
  * - `options.hydrate` - `true` if you want to test hydration
  * - `options.wrapper` - a component that applies a context provider and returns `props.children`
- * 
+ *
  * ### Result
  * - `result.asFragment()` - returns the HTML fragment as string
  * - `result.container` - the container in which the component is rendered
@@ -53,12 +72,18 @@ function render(ui: Ui, options: Options = {}): Result {
     container = baseElement.appendChild(document.createElement("div"));
   }
 
-  const wrappedUi: Ui = typeof wrapper === 'function'
-    ? () => createComponent(wrapper!, { get children() { return createComponent(ui, {}); } })
-    : ui;
+  const wrappedUi: Ui =
+    typeof wrapper === "function"
+      ? () =>
+          createComponent(wrapper!, {
+            get children() {
+              return createComponent(ui, {});
+            }
+          })
+      : ui;
 
   const dispose = hydrate
-    ? ((solidHydrate(wrappedUi, container) as unknown) as () => void)
+    ? (solidHydrate(wrappedUi, container) as unknown as () => void)
     : solidRender(wrappedUi, container);
 
   // We'll add it to the mounted containers regardless of whether it's actually
@@ -66,7 +91,7 @@ function render(ui: Ui, options: Options = {}): Result {
   // they're passing us a custom container or not.
   mountedContainers.add({ container, dispose });
 
-  const queryHelpers = getQueriesForElement(container, queries)
+  const queryHelpers = getQueriesForElement(container, queries);
 
   return {
     asFragment: () => container?.innerHTML as string,
@@ -86,7 +111,7 @@ function render(ui: Ui, options: Options = {}): Result {
  * @param hook {() => unknown)} a hook or primitive
  * @param options {RenderHookOptions} test options
  * @returns {RenderHookResult} references and tools to test the hook/primitive
- * 
+ *
  * ```ts
  * const { result } = render(useI18n, { wrapper: I18nProvider });
  * expect(result.t('test')).toBe('works');
@@ -94,7 +119,7 @@ function render(ui: Ui, options: Options = {}): Result {
  * ### Options
  * - `options.initialProps` - an array with the props that the hook will be provided with.
  * - `options.wrapper` - a component that applies a context provider and **always** returns `props.children`
- * 
+ *
  * ### Result
  * - `result.result` - the return value of the hook/primitive
  * - `result.owner` - the reactive owner in which the hook is run (in order to run other reactive code in the same context with [`runWithOwner`](https://www.solidjs.com/docs/latest/api#runwithowner))
@@ -105,18 +130,24 @@ export function renderHook<A extends any[], R>(
   options?: RenderHookOptions<A>
 ): RenderHookResult<R> {
   const initialProps: A | [] = Array.isArray(options) ? options : options?.initialProps || [];
-  const [dispose, owner, result] = createRoot((dispose) => {
-    if (typeof options === 'object' && 'wrapper' in options && typeof options.wrapper === "function") {
+  const [dispose, owner, result] = createRoot(dispose => {
+    if (
+      typeof options === "object" &&
+      "wrapper" in options &&
+      typeof options.wrapper === "function"
+    ) {
       let result: ReturnType<typeof hook>;
-      options.wrapper({ get children() {
-        return createComponent(() => {
-          result = hook(...initialProps as A);
-          return null;
-        }, {});
-      } });
-      return [dispose, getOwner(), result!]
+      options.wrapper({
+        get children() {
+          return createComponent(() => {
+            result = hook(...(initialProps as A));
+            return null;
+          }, {});
+        }
+      });
+      return [dispose, getOwner(), result!];
     }
-    return [dispose, getOwner(), hook(...initialProps as A)]
+    return [dispose, getOwner(), hook(...(initialProps as A))];
   });
 
   mountedContainers.add({ dispose });
@@ -129,7 +160,7 @@ export function renderHook<A extends any[], R>(
  * @param directive {(ref, value: () => unknown)} a reusable custom directive
  * @param options {RenderDirectiveOptions} test options
  * @returns {RenderDirectiveResult} references and tools to test the directive
- * 
+ *
  * ```ts
  * const called = vi.fn()
  * const { getByText, baseContainer } = render(onClickOutside, { initialValue: called });
@@ -145,7 +176,7 @@ export function renderHook<A extends any[], R>(
  * - `options.queries` - custom queries (see https://testing-library.com/docs/queries/about)
  * - `options.hydrate` - `true` if you want to test hydration
  * - `options.wrapper` - a component that applies a context provider and returns `props.children`
- * 
+ *
  * ### Result
  * - `result.arg()` - the accessor for the value that the directive receives
  * - `result.setArg()` - the setter for the value that the directive receives
@@ -161,19 +192,48 @@ export function renderDirective<A extends any, U extends A, E extends HTMLElemen
   options?: RenderDirectiveOptions<U, E>
 ): RenderDirectiveResult<U> {
   const [arg, setArg] = createSignal(options?.initialValue as U);
-  return Object.assign(render(() => {
-    const targetElement = options?.targetElement &&
-      (options.targetElement instanceof HTMLElement
-        ? options.targetElement
-        : typeof options.targetElement === 'string'
-        ? document.createElement(options.targetElement)
-        : typeof options.targetElement === 'function'
-        ? options.targetElement()
-        : undefined) ||
-      document.createElement('div');
-    onMount(() => directive(targetElement as E, arg as Accessor<U>));
-    return targetElement;
-  }, options), { arg, setArg });
+  return Object.assign(
+    render(() => {
+      const targetElement =
+        (options?.targetElement &&
+          (options.targetElement instanceof HTMLElement
+            ? options.targetElement
+            : typeof options.targetElement === "string"
+            ? document.createElement(options.targetElement)
+            : typeof options.targetElement === "function"
+            ? options.targetElement()
+            : undefined)) ||
+        document.createElement("div");
+      onMount(() => directive(targetElement as E, arg as Accessor<U>));
+      return targetElement;
+    }, options),
+    { arg, setArg }
+  );
+}
+
+export function testEffect<T extends any = void>(
+  fn: (done: (result: T) => void) => void,
+  owner?: Owner
+): Promise<T> {
+  const context: {
+    promise?: Promise<T>;
+    done?: (result: T) => void;
+    fail?: (error: any) => void;
+    dispose?: () => void;
+  } = {};
+  context.promise = new Promise<T>((resolve, reject) => {
+    context.done = resolve;
+    context.fail = reject;
+  });
+  context.dispose = createRoot(dispose => {
+    onError(err => context.fail?.(err));
+    (owner ? (done: (result: T) => void) => runWithOwner(owner, () => fn(done)) : fn)(result => {
+      context.done?.(result);
+      dispose();
+    });
+    return dispose;
+  });
+  return context.promise;
 }
 
 function cleanupAtContainer(ref: Ref) {

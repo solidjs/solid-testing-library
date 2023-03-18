@@ -135,6 +135,29 @@ expect(asFragment()).toBe(
 );
 ```
 
+⚠️ Solid.js manages side effects with different variants of `createEffect`. While you can use `waitFor` to test asynchronous effects, it uses polling instead of allowing Solid's reactivity to trigger the next step. In order to simplify testing those asynchronous effects, we have a `testEffect` helper that complements the hooks for directives and hooks:
+
+```ts
+testEffect(fn: (done: (result: T) => void) => void, owner?: Owner): Promise<T>
+
+// use it like this:
+test("testEffect allows testing an effect asynchronously", () => {
+  const [value, setValue] = createSignal(0);
+  return testEffect(done => createEffect((run: number = 0) => {
+    if (run === 0) {
+      expect(value()).toBe(0);
+      setValue(1);
+    } else if (run === 1) {
+      expect(value()).toBe(1);
+      done();
+    }
+    return run + 1;
+  }));
+});
+```
+
+It allows running the effect inside a defined owner that is received as an optional second argument. This can be useful in combination with `renderHook`, which gives you an owner field in its result. The return value is a Promise with the value given to the `done()` callback. You can either await the result for further assertions or return it to your test runner.
+
 ## Issues
 
 If you find any issues, please [check on the issues page](https://github.com/solidjs/solid-testing-library/issues) if they are already known. If not, opening an issue will be much appreciated, even more so if it contains a

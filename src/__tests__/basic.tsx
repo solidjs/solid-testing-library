@@ -5,10 +5,13 @@ import {
   createContext,
   useContext,
   ParentComponent,
-  Accessor
+  Accessor,
+  getOwner,
+  createRoot,
+  runWithOwner
 } from "solid-js";
 import type { JSX } from "solid-js";
-import { render, renderDirective, renderHook, screen } from "..";
+import { render, renderDirective, renderHook, screen, testEffect } from "..";
 import userEvent from "@testing-library/user-event";
 
 declare global {
@@ -178,4 +181,42 @@ test("renderDirective works for directives with argument", () => {
   expect(asFragment()).toBe('<span data-directive="initial value"></span>');
   setArg("updated value");
   expect(asFragment()).toBe('<span data-directive="updated value"></span>');
+});
+
+test("testEffect allows testing an effect asynchronously", () => {
+  const [value, setValue] = createSignal(0);
+  return testEffect(done => createEffect((run: number = 0) => {
+    if (run === 0) {
+      expect(value()).toBe(0);
+      setValue(1);
+    } else if (run === 1) {
+      expect(value()).toBe(1);
+      done();
+    }
+    return run + 1;
+  }));
+});
+
+test("testEffect catches errors", () => {
+  const [value, setValue] = createSignal<{ error: string } | null>({ error: "not yet" });
+  return testEffect(done => createEffect((run: number = 0) => {
+    value()!.error;
+    if (run === 0) {
+      setValue(null);
+    } if (run === 1) {
+      done();
+    }
+    return run + 1;
+  }))
+    .then(() => { throw new Error("Error swallowed by testEffect!")})
+    .catch((e: Error) => expect(e.name).toBe("TypeError"));
+});
+
+test("testEffect runs with owner", () => {
+  const [owner, dispose] = createRoot((dispose) => [getOwner(), dispose]);
+  return testEffect(done => createEffect(() => {
+    expect(getOwner()!.owner).toBe(owner);
+    dispose();
+    done();
+  }), owner!);
 });
