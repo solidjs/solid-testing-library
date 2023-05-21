@@ -1,6 +1,6 @@
 {
   "name": "@solidjs/testing-library",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Simple and complete Solid testing utilities that encourage good testing practices.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -57,21 +57,21 @@
     "report:coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "dependencies": {
-    "@testing-library/dom": "^9.0.1"
+    "@testing-library/dom": "^9.3.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/user-event": "^14.4.3",
     "coveralls": "^3.1.1",
-    "jsdom": "^21.1.1",
-    "prettier": "^2.8.4",
+    "jsdom": "^22.0.0",
+    "prettier": "^2.8.8",
     "pretty-format": "^29.5.0",
-    "solid-js": "^1.6.15",
-    "tsup": "6.6.3",
-    "typescript": "^5.0.2",
-    "vite-plugin-solid": "^2.6.1",
-    "vitest": "^0.29.3",
-    "@vitest/coverage-c8": "^0.29.3"
+    "solid-js": "^1.7.5",
+    "tsup": "6.7.0",
+    "typescript": "^5.0.4",
+    "vite-plugin-solid": "^2.7.0",
+    "vitest": "^0.31.1",
+    "@vitest/coverage-c8": "^0.31.1"
   },
   "peerDependencies": {
     "solid-js": ">=1.0.0"
