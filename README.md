@@ -74,9 +74,22 @@ const results = render(<YourComponent />, options);
 const results = render(() => <YourComponent />, options);
 ```
 
-⚠️ Solid.js does *not* rerender, it merely executes side effects triggered by reactive state that change the DOM, therefore there is no rerender method. You can use global signals to manipulate your test component in a way that causes it to update.
+⚠️ Solid.js does *not* re-render, it merely executes side effects triggered by reactive state that change the DOM, therefore there is no `rerender` method. You can use global signals to manipulate your test component in a way that causes it to update.
 
-Solid.js' reactive changes are pretty instantaneous, so there is rarely need to use `waitFor(…)` or `await findByRole(…)` - with the exception of transitions and Suspense.
+Solid.js reactive changes are pretty instantaneous, so there is rarely need to use `waitFor(…)` or `await findByRole(…)`, except for transitions, suspense and router navigation.
+
+⚠️ In extension of the original API, this testing library supports a convenient `location` option that will set up a router with memory integration pointing at a certain path. Since setting the path is not instantaneous, you need to use asynchronous queries after employing it:
+
+```tsx
+const App = () => (
+  <Routes>
+    <Route path="/ids/:id" component={() => <p>Id: {useParams()?.id}</p>} />
+    <Route path="/" component={() => <p>Start</p>} />
+  </Routes>
+); 
+const { findByText } = render(() => <App />, { location: "ids/1234" });
+expect(findByText("Id: 1234")).not.toBeFalsy();
+```
 
 ⚠️ Solid.js external reactive state does not require any DOM elements to run in, so our `renderHook` call has no `container`, `baseElement` or queries in its options or return value. Instead, it has an `owner` to be used with [`runWithOwner`](https://www.solidjs.com/docs/latest/api#runwithowner) if required. It also exposes a `cleanup` function, though this is already automatically called after the test is finished.
 
@@ -168,7 +181,7 @@ If you find any issues, please [check on the issues page](https://github.com/sol
 
 If you think you can fix an issue yourself, feel free to [open a pull-request](https://github.com/solidjs/solid-testing-library/pulls). If functionality changes, please don't forget to add or adapt tests.
 
-## Acknowledgment
+## Acknowledgement
 
 Thanks goes to [Kent C. Dodds](https://kentcdodds.com/) and his colleagues for creating testing-library and to the creators of [preact-testing-library](https://github.com/testing-library/preact-testing-library).
 

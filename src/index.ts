@@ -1,6 +1,7 @@
 import { getQueriesForElement, prettyDOM } from "@testing-library/dom";
 import {
   Accessor,
+  children,
   createComponent,
   createRoot,
   createSignal,
@@ -11,6 +12,8 @@ import {
   runWithOwner,
 } from "solid-js";
 import { hydrate as solidHydrate, render as solidRender } from "solid-js/web";
+
+import { Router, Navigate, memoryIntegration, useParams } from "@solidjs/router";
 
 import type {
   Ui,
@@ -50,6 +53,7 @@ const mountedContainers = new Set<Ref>();
  * - `options.queries` - custom queries (see https://testing-library.com/docs/queries/about)
  * - `options.hydrate` - `true` if you want to test hydration
  * - `options.wrapper` - a component that applies a context provider and returns `props.children`
+ * - `options.location` - wraps the component in a solid-router with memory integration pointing at the given path
  *
  * ### Result
  * - `result.asFragment()` - returns the HTML fragment as string
@@ -60,7 +64,7 @@ const mountedContainers = new Set<Ref>();
  * - `result.`[queries] - testing library queries, see https://testing-library.com/docs/queries/about)
  */
 function render(ui: Ui, options: Options = {}): Result {
-  let { container, baseElement = container, queries, hydrate = false, wrapper } = options;
+  let { container, baseElement = container, queries, hydrate = false, wrapper, location } = options;
 
   if (!baseElement) {
     // Default to document.body instead of documentElement to avoid output of potentially-large
@@ -82,9 +86,23 @@ function render(ui: Ui, options: Options = {}): Result {
           })
       : ui;
 
+  const routedUi: Ui = () => {
+    return !location ? wrappedUi() : createComponent(Router, {
+      get children() {
+        return [
+          createComponent(Navigate, { href: location || "" }),
+          createComponent(wrappedUi, {})
+        ]
+      },
+      get source() {
+        return memoryIntegration();
+      }
+    });
+  };
+
   const dispose = hydrate
-    ? (solidHydrate(wrappedUi, container) as unknown as () => void)
-    : solidRender(wrappedUi, container);
+    ? (solidHydrate(routedUi, container) as unknown as () => void)
+    : solidRender(routedUi, container);
 
   // We'll add it to the mounted containers regardless of whether it's actually
   // added to document.body so the cleanup method works regardless of whether
