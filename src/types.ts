@@ -15,6 +15,7 @@ export interface Options {
   queries?: Queries & typeof queries;
   hydrate?: boolean;
   wrapper?: Component<{ children: JSX.Element }>;
+  location?: string;
 }
 
 export type DebugFn = (
