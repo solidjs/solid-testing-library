@@ -10,9 +10,9 @@ describe("location option", () => {
     </Routes>
   );
 
-  it("can render the main route", () => {
-    const { getByText } = render(() => <App />, { location: "/" });
-    expect(getByText("Start")).not.toBeFalsy();
+  it("can render the main route", async () => {
+    const { findByText } = render(() => <App />, { location: "/" });
+    expect(await findByText("Start")).not.toBeFalsy();
   });
 
   it("can render a route with the id", async () => {

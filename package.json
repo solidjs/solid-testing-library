@@ -1,6 +1,6 @@
 {
   "name": "@solidjs/testing-library",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Simple and complete Solid testing utilities that encourage good testing practices.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -57,10 +57,10 @@
     "report:coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "dependencies": {
-    "@solidjs/router": "^0.8.2",
     "@testing-library/dom": "^9.3.0"
   },
   "devDependencies": {
+    "@solidjs/router": "^0.8.2",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/user-event": "^14.4.3",
     "@vitest/coverage-c8": "^0.32.2",

@@ -1,19 +1,17 @@
 import { getQueriesForElement, prettyDOM } from "@testing-library/dom";
 import {
   Accessor,
-  children,
   createComponent,
   createRoot,
   createSignal,
   getOwner,
+  lazy,
   onError,
   onMount,
   Owner,
-  runWithOwner,
+  runWithOwner
 } from "solid-js";
 import { hydrate as solidHydrate, render as solidRender } from "solid-js/web";
-
-import { Router, Navigate, memoryIntegration, useParams } from "@solidjs/router";
 
 import type {
   Ui,
@@ -86,19 +84,36 @@ function render(ui: Ui, options: Options = {}): Result {
           })
       : ui;
 
-  const routedUi: Ui = () => {
-    return !location ? wrappedUi() : createComponent(Router, {
-      get children() {
-        return [
-          createComponent(Navigate, { href: location || "" }),
-          createComponent(wrappedUi, {})
-        ]
-      },
-      get source() {
-        return memoryIntegration();
-      }
-    });
-  };
+  const routedUi: Ui =
+    typeof location === "string"
+      ? lazy(async () => {
+          try {
+            const { memoryIntegration, useNavigate, Router } = await import("@solidjs/router");
+            return {
+              default: () =>
+                createComponent(Router, {
+                  get children() {
+                    return [
+                      createComponent(
+                        () => (useNavigate()(location || "", { replace: true, scroll: false }), null),
+                        {}
+                      ),
+                      createComponent(wrappedUi, {})
+                    ];
+                  },
+                  get source() {
+                    return memoryIntegration();
+                  }
+                })
+            };
+          } catch (e) {
+            console.error(
+              "It appears you want to use the location option without having @solidjs/router installed."
+            );
+            return { default: () => createComponent(wrappedUi, {}) };
+          }
+        })
+      : wrappedUi;
 
   const dispose = hydrate
     ? (solidHydrate(routedUi, container) as unknown as () => void)
