@@ -78,7 +78,7 @@ const results = render(() => <YourComponent />, options);
 
 Solid.js reactive changes are pretty instantaneous, so there is rarely need to use `waitFor(…)` or `await findByRole(…)`, except for transitions, suspense and router navigation.
 
-⚠️ In extension of the original API, this testing library supports a convenient `location` option that will set up a router with memory integration pointing at a certain path. Since setting the path is not instantaneous, you need to use asynchronous queries after employing it:
+⚠️ In extension of the original API, this testing library supports convenient `location` and `routeDataFunc` options that will set up a router with memory integration pointing at a certain path if `location` is given and primed with the `routeDataFunc` as data. Since this setup is not instantaneous, you need to first use asynchronous queries (`findBy`) after employing it:
 
 ```tsx
 const App = () => (
