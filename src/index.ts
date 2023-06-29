@@ -95,7 +95,7 @@ function render(ui: Ui, options: Options = {}): Result {
                   get children() {
                     return [
                       typeof location === "string" ? createComponent(
-                        () => (useNavigate()(location || "", { replace: true, scroll: false }), null),
+                        () => (useNavigate()(location, { replace: true, scroll: false }), null),
                         {}
                       ) : null,
                       createComponent(wrappedUi, {})
