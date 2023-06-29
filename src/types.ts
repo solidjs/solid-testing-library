@@ -1,6 +1,7 @@
 import type { Accessor, Component, JSX, Owner, Setter } from "solid-js";
 import { queries } from "@testing-library/dom";
 import type { Queries, BoundFunctions, prettyFormat } from "@testing-library/dom";
+import type { RouteDataFunc } from "@solidjs/router";
 
 export interface Ref {
   container?: HTMLElement;
@@ -16,6 +17,7 @@ export interface Options {
   hydrate?: boolean;
   wrapper?: Component<{ children: JSX.Element }>;
   location?: string;
+  routeDataFunc?: RouteDataFunc;
 }
 
 export type DebugFn = (
