@@ -85,7 +85,7 @@ function render(ui: Ui, options: Options = {}): Result {
       : ui;
 
   const routedUi: Ui =
-    typeof location === "string"
+    typeof location === "string" || typeof options.routeDataFunc === "function"
       ? lazy(async () => {
           try {
             const { memoryIntegration, useNavigate, Router } = await import("@solidjs/router");
@@ -94,13 +94,14 @@ function render(ui: Ui, options: Options = {}): Result {
                 createComponent(Router, {
                   get children() {
                     return [
-                      createComponent(
-                        () => (useNavigate()(location || "", { replace: true, scroll: false }), null),
+                      typeof location === "string" ? createComponent(
+                        () => (useNavigate()(location, { replace: true, scroll: false }), null),
                         {}
-                      ),
+                      ) : null,
                       createComponent(wrappedUi, {})
                     ];
                   },
+                  data: options.routeDataFunc,
                   get source() {
                     return memoryIntegration();
                   }
