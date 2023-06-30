@@ -1,6 +1,6 @@
 {
   "name": "@solidjs/testing-library",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "Simple and complete Solid testing utilities that encourage good testing practices.",
   "type": "module",
   "main": "./dist/index.cjs",
