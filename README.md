@@ -81,14 +81,16 @@ Solid.js reactive changes are pretty instantaneous, so there is rarely need to u
 ⚠️ In extension of the original API, this testing library supports convenient `location` and `routeDataFunc` options that will set up a router with memory integration pointing at a certain path if `location` is given and primed with the `routeDataFunc` as data. Since this setup is not instantaneous, you need to first use asynchronous queries (`findBy`) after employing it:
 
 ```tsx
-const App = () => (
-  <Routes>
-    <Route path="/ids/:id" component={() => <p>Id: {useParams()?.id}</p>} />
-    <Route path="/" component={() => <p>Start</p>} />
-  </Routes>
-); 
-const { findByText } = render(() => <App />, { location: "ids/1234" });
-expect(findByText("Id: 1234")).not.toBeFalsy();
+it('uses params', () => {
+  const App = () => (
+    <Routes>
+      <Route path="/ids/:id" component={() => <p>Id: {useParams()?.id}</p>} />
+      <Route path="/" component={() => <p>Start</p>} />
+    </Routes>
+  ); 
+  const { findByText } = render(() => <App />, { location: "ids/1234" });
+  expect(await findByText("Id: 1234")).not.toBeFalsy();
+});
 ```
 
 ⚠️ Solid.js external reactive state does not require any DOM elements to run in, so our `renderHook` call has no `container`, `baseElement` or queries in its options or return value. Instead, it has an `owner` to be used with [`runWithOwner`](https://www.solidjs.com/docs/latest/api#runwithowner) if required. It also exposes a `cleanup` function, though this is already automatically called after the test is finished.

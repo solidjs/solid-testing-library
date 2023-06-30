@@ -1,6 +1,6 @@
 {
   "name": "@solidjs/testing-library",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "Simple and complete Solid testing utilities that encourage good testing practices.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -46,7 +46,7 @@
   ],
   "scripts": {
     "prepublishOnly": "npm run build",
-    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean; node -e 'require(`node:fs/promises`).copyFile(`dist/index.d.ts`, `dist/index.d.cts`)'",
     "typecheck": "tsc --noEmit; tsc --noEmit --project src/__tests__/tsconfig.json",
     "test": "vitest",
     "test:watch": "npm test --watch",
@@ -57,7 +57,7 @@
     "report:coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "dependencies": {
-    "@testing-library/dom": "^9.3.0"
+    "@testing-library/dom": "^9.3.1"
   },
   "devDependencies": {
     "@solidjs/router": "^0.8.2",
