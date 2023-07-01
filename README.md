@@ -76,12 +76,12 @@ const results = render(() => <YourComponent />, options);
 
 ⚠️ Solid.js does *not* re-render, it merely executes side effects triggered by reactive state that change the DOM, therefore there is no `rerender` method. You can use global signals to manipulate your test component in a way that causes it to update.
 
-Solid.js reactive changes are pretty instantaneous, so there is rarely need to use `waitFor(…)` or `await findByRole(…)`, except for transitions, suspense and router navigation.
+Solid.js reactive changes are pretty instantaneous, so there is rarely need to use `waitFor(…)`, `await findByRole(…)` and other asynchronous queries to test the rendered result, except for transitions, suspense, resources and router navigation.
 
-⚠️ In extension of the original API, this testing library supports convenient `location` and `routeDataFunc` options that will set up a router with memory integration pointing at a certain path if `location` is given and primed with the `routeDataFunc` as data. Since this setup is not instantaneous, you need to first use asynchronous queries (`findBy`) after employing it:
+⚠️ In extension of the original API, the render function of this testing library supports convenient `location` and `routeDataFunc` options that will set up a router with memory integration pointing at a certain path if `location` is given and primed with the `routeDataFunc` as data. Since this setup is not instantaneous, you need to first use asynchronous queries (`findBy`) after employing it:
 
 ```tsx
-it('uses params', () => {
+it('uses params', async () => {
   const App = () => (
     <Routes>
       <Route path="/ids/:id" component={() => <p>Id: {useParams()?.id}</p>} />
@@ -92,6 +92,8 @@ it('uses params', () => {
   expect(await findByText("Id: 1234")).not.toBeFalsy();
 });
 ```
+
+It uses `@solidjs/router`, so if you want to use a different router, you should consider the `wrapper` option instead. If you attempt to use this without having the package installed, you will receive an error message.
 
 ⚠️ Solid.js external reactive state does not require any DOM elements to run in, so our `renderHook` call has no `container`, `baseElement` or queries in its options or return value. Instead, it has an `owner` to be used with [`runWithOwner`](https://www.solidjs.com/docs/latest/api#runwithowner) if required. It also exposes a `cleanup` function, though this is already automatically called after the test is finished.
 
