@@ -45,6 +45,7 @@ const mountedContainers = new Set<Ref>();
  * const { getByText } = render(() => <App />, { wrapper: I18nProvider });
  * const button = getByText('Accept');
  * ```
+ *
  * ### Options
  * - `options.container` - the HTML element which the UI will be rendered into; otherwise a `<div>` will be created
  * - `options.baseElement` - the parent of the container, the default will be `<body>`
@@ -52,6 +53,8 @@ const mountedContainers = new Set<Ref>();
  * - `options.hydrate` - `true` if you want to test hydration
  * - `options.wrapper` - a component that applies a context provider and returns `props.children`
  * - `options.location` - wraps the component in a solid-router with memory integration pointing at the given path
+ * - `options.locationState` - if a location is used, this allows to set location.state within the `useLocation()` return value
+ * - `options.routerDataFunc` - wraps the component in a solid-router with memory integration and sets the data property of the router to set up `useRouteData()`
  *
  * ### Result
  * - `result.asFragment()` - returns the HTML fragment as string
@@ -62,7 +65,16 @@ const mountedContainers = new Set<Ref>();
  * - `result.`[queries] - testing library queries, see https://testing-library.com/docs/queries/about)
  */
 function render(ui: Ui, options: Options = {}): Result {
-  let { container, baseElement = container, queries, hydrate = false, wrapper, location } = options;
+  let {
+    container,
+    baseElement = container,
+    queries,
+    hydrate = false,
+    wrapper,
+    location,
+    locationState,
+    routeDataFunc
+  } = options;
 
   if (!baseElement) {
     // Default to document.body instead of documentElement to avoid output of potentially-large
@@ -85,26 +97,26 @@ function render(ui: Ui, options: Options = {}): Result {
       : ui;
 
   const routedUi: Ui =
-    typeof location === "string" || typeof options.routeDataFunc === "function"
+    typeof location === "string" || typeof routeDataFunc === "function"
       ? lazy(async () => {
           try {
-            const { memoryIntegration, useNavigate, Router } = await import("@solidjs/router");
+            const { memoryIntegration, Router } = await import("@solidjs/router");
+            const source = memoryIntegration();
+            location &&
+              source.signal[1]({
+                value: location,
+                replace: true,
+                scroll: false,
+                state: locationState
+              });
             return {
               default: () =>
                 createComponent(Router, {
                   get children() {
-                    return [
-                      typeof location === "string" ? createComponent(
-                        () => (useNavigate()(location as string, { replace: true, scroll: false }), null),
-                        {}
-                      ) : null,
-                      createComponent(wrappedUi, {})
-                    ];
+                    return createComponent(wrappedUi, {});
                   },
-                  data: options.routeDataFunc,
-                  get source() {
-                    return memoryIntegration();
-                  }
+                  data: routeDataFunc,
+                  source
                 })
             };
           } catch (e) {
@@ -150,6 +162,7 @@ function render(ui: Ui, options: Options = {}): Result {
  * const { result } = render(useI18n, { wrapper: I18nProvider });
  * expect(result.t('test')).toBe('works');
  * ```
+ *
  * ### Options
  * - `options.initialProps` - an array with the props that the hook will be provided with.
  * - `options.wrapper` - a component that applies a context provider and **always** returns `props.children`
@@ -202,6 +215,7 @@ export function renderHook<A extends any[], R>(
  * fireEvent.click(baseContainer);
  * expect(called).toBeCalled();
  * ```
+ *
  * ### Options
  * - `options.initialValue` - a value added to the directive
  * - `options.targetElement` - the name of a HTML element as a string or a HTMLElement or a function returning a HTMLElement
@@ -287,3 +301,4 @@ function cleanup() {
 
 export * from "@testing-library/dom";
 export { render, cleanup };
+

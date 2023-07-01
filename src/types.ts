@@ -16,8 +16,9 @@ export interface Options {
   queries?: Queries & typeof queries;
   hydrate?: boolean;
   wrapper?: Component<{ children: JSX.Element }>;
-  readonly location?: string;
+  location?: string;
   routeDataFunc?: RouteDataFunc;
+  locationState?: unknown;
 }
 
 export type DebugFn = (

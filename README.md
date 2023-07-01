@@ -190,3 +190,4 @@ If you think you can fix an issue yourself, feel free to [open a pull-request](h
 Thanks goes to [Kent C. Dodds](https://kentcdodds.com/) and his colleagues for creating testing-library and to the creators of [preact-testing-library](https://github.com/testing-library/preact-testing-library).
 
 This library has been created by Ryan Carniato and is currently maintained by Alex Lohr.
+
