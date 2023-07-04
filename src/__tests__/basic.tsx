@@ -185,38 +185,49 @@ test("renderDirective works for directives with argument", () => {
 
 test("testEffect allows testing an effect asynchronously", () => {
   const [value, setValue] = createSignal(0);
-  return testEffect(done => createEffect((run: number = 0) => {
-    if (run === 0) {
-      expect(value()).toBe(0);
-      setValue(1);
-    } else if (run === 1) {
-      expect(value()).toBe(1);
-      done();
-    }
-    return run + 1;
-  }));
+  return testEffect(done =>
+    createEffect((run: number = 0) => {
+      if (run === 0) {
+        expect(value()).toBe(0);
+        setValue(1);
+      } else if (run === 1) {
+        expect(value()).toBe(1);
+        done();
+      }
+      return run + 1;
+    })
+  );
 });
 
 test("testEffect catches errors", () => {
   const [value, setValue] = createSignal<{ error: string } | null>({ error: "not yet" });
-  return testEffect(done => createEffect((run: number = 0) => {
-    value()!.error;
-    if (run === 0) {
-      setValue(null);
-    } if (run === 1) {
-      done();
-    }
-    return run + 1;
-  }))
-    .then(() => { throw new Error("Error swallowed by testEffect!")})
+  return testEffect(done =>
+    createEffect((run: number = 0) => {
+      value()!.error;
+      if (run === 0) {
+        setValue(null);
+      }
+      if (run === 1) {
+        done();
+      }
+      return run + 1;
+    })
+  )
+    .then(() => {
+      throw new Error("Error swallowed by testEffect!");
+    })
     .catch((e: Error) => expect(e.name).toBe("TypeError"));
 });
 
 test("testEffect runs with owner", () => {
-  const [owner, dispose] = createRoot((dispose) => [getOwner(), dispose]);
-  return testEffect(done => createEffect(() => {
-    expect(getOwner()!.owner).toBe(owner);
-    dispose();
-    done();
-  }), owner!);
+  const [owner, dispose] = createRoot(dispose => [getOwner(), dispose]);
+  return testEffect(
+    done =>
+      createEffect(() => {
+        expect(getOwner()!.owner).toBe(owner);
+        dispose();
+        done();
+      }),
+    owner!
+  );
 });

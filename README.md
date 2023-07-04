@@ -9,7 +9,7 @@ practices.</p>
 
 [![Coverage Status](https://coveralls.io/repos/github/ryansolid/solid-testing-library/badge.svg?branch=main)](https://coveralls.io/github/ryansolid/solid-testing-library?branch=main)
 [![NPM Version](https://img.shields.io/npm/v/@solidjs/testing-library.svg?style=flat)](https://www.npmjs.com/package/@solidjs/testing-library)
-[![](https://img.shields.io/npm/dm/solid-testing-library.svg?style=flat)](https://www.npmjs.com/package/solid-testing-library)
+[![NPM Downloads](https://img.shields.io/npm/dm/solid-testing-library.svg?style=flat)](https://www.npmjs.com/package/solid-testing-library)
 [![Discord](https://img.shields.io/discord/722131463138705510)](https://discord.com/invite/solidjs)
 
 </div>
@@ -27,10 +27,11 @@ practices.</p>
 
 ---
 
+
 ## The Problem
 
-You want to write tests for your Solid components so that they avoid including implementation
-details, and are maintainable in the long run.
+You want to write tests for your Solid components so that they avoid including implementation details, and are maintainable in the long run.
+
 
 ## The Solution
 
@@ -52,9 +53,11 @@ If you using Jest we recommend using [solid-jest](https://github.com/solidjs/sol
 💡 If you are using Jest or vitest, you may also be interested in installing `@testing-library/jest-dom` so you can use
 [the custom jest matchers](https://github.com/testing-library/jest-dom).
 
+
 ## Integration with Vite
 
 A working Vite template setup with `solid-testing-library` and TypeScript support can be found [here](https://github.com/solidjs/solid-start/tree/main/examples/with-vitest).
+
 
 ## Docs
 
@@ -175,6 +178,7 @@ test("testEffect allows testing an effect asynchronously", () => {
 
 It allows running the effect inside a defined owner that is received as an optional second argument. This can be useful in combination with `renderHook`, which gives you an owner field in its result. The return value is a Promise with the value given to the `done()` callback. You can either await the result for further assertions or return it to your test runner.
 
+
 ## Issues
 
 If you find any issues, please [check on the issues page](https://github.com/solidjs/solid-testing-library/issues) if they are already known. If not, opening an issue will be much appreciated, even more so if it contains a
@@ -184,6 +188,38 @@ If you find any issues, please [check on the issues page](https://github.com/sol
 - list of possible workarounds, if there are any
 
 If you think you can fix an issue yourself, feel free to [open a pull-request](https://github.com/solidjs/solid-testing-library/pulls). If functionality changes, please don't forget to add or adapt tests.
+
+
+### Known issues
+
+If you are using [`vitest`](https://vitest.dev/), then tests might fail, because the packages `solid-js`, and `@solidjs/router` (if used) need to be loaded only once, and they could be loaded both through the internal `vite` server and through node. Typical bugs that happen because of this is that dispose is supposedly undefined, or the router could not be loaded.
+
+There are three ways you could attempt to work around this problem. If they work depends on your version of `vitest`, which version of `node-js` and what package manager you use (some of them change the way node resolves modules):
+
+```ts
+// this is inside your vite(st) config:
+{
+    test: {
+        deps: {
+            // 1nd way: remove the @solidjs/router part if you do not use it:
+            inline: [/solid-js/, /@solidjs\/router/],
+            // 2st way 
+            registerNodeLoader: false,
+        },
+        // 3rd way: alias the resolution
+        resolve: {
+            alias: {
+                "solid-js": "node_modules/solid-js/dist/dev.js",
+                // only needed if the router is used:
+                "@solidjs/router": "node_modules/@solidjs/router/index.jsx",
+            },
+        },
+    },
+}
+```
+
+At the moment of writing this, the 1st way seems to be the most reliable for the default solid template. Solid-start's vite plugin might need a different configuration.
+
 
 ## Acknowledgement
 
