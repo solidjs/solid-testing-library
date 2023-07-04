@@ -18,6 +18,6 @@ export default defineConfig({
     deps: { registerNodeLoader: false }
   },
   resolve: {
-    conditions: ["browser", "development"],
+    conditions: ["browser", "development"]
   }
 });

@@ -109,7 +109,7 @@ function render(ui: Ui, options: Options = {}): Result {
             };
           } catch (e) {
             console.error(
-              "It appears you want to use the location option without having @solidjs/router installed."
+              `Error attempting to initialize @solidjs/router:\n"${e.message || "unknown error"}"`
             );
             return { default: () => createComponent(wrappedUi, {}) };
           }
