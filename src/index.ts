@@ -94,10 +94,15 @@ function render(ui: Ui, options: Options = {}): Result {
                 createComponent(Router, {
                   get children() {
                     return [
-                      typeof location === "string" ? createComponent(
-                        () => (useNavigate()(location as string, { replace: true, scroll: false }), null),
-                        {}
-                      ) : null,
+                      typeof location === "string"
+                        ? createComponent(
+                            () => (
+                              useNavigate()(location as string, { replace: true, scroll: false }),
+                              null
+                            ),
+                            {}
+                          )
+                        : null,
                       createComponent(wrappedUi, {})
                     ];
                   },
@@ -107,9 +112,11 @@ function render(ui: Ui, options: Options = {}): Result {
                   }
                 })
             };
-          } catch (e) {
+          } catch (e: unknown) {
             console.error(
-              `Error attempting to initialize @solidjs/router:\n"${e.message || "unknown error"}"`
+              `Error attempting to initialize @solidjs/router:\n"${
+                (e instanceof Error && e.message) || e?.toString() || "unknown error"
+              }"`
             );
             return { default: () => createComponent(wrappedUi, {}) };
           }
