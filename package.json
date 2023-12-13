@@ -78,7 +78,7 @@
     "@solidjs/router": ">=0.6.0",
     "solid-js": ">=1.0.0"
   },
-  "peerDependencyMeta": {
+  "peerDependenciesMeta": {
     "@solidjs/router": {
       "optional": true
     }
