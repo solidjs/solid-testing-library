@@ -26,11 +26,8 @@ import type {
 
 /* istanbul ignore next */
 if (!process.env.STL_SKIP_AUTO_CLEANUP) {
-  if (typeof afterEach === "function") {
-    afterEach(async () => {
-      await cleanup();
-    });
-  }
+  //@ts-ignore
+  if (typeof afterEach === "function") { afterEach(cleanup); }
 }
 
 const mountedContainers = new Set<Ref>();
@@ -85,31 +82,17 @@ function render(ui: Ui, options: Options = {}): Result {
       : ui;
 
   const routedUi: Ui =
-    typeof location === "string" || typeof options.routeDataFunc === "function"
+    typeof location === "string"
       ? lazy(async () => {
           try {
-            const { memoryIntegration, useNavigate, Router } = await import("@solidjs/router");
+            const { createMemoryHistory, MemoryRouter } = await import("@solidjs/router");
+            const history = createMemoryHistory();
+            location && history.set({ value: location, scroll: false, replace: true });
             return {
               default: () =>
-                createComponent(Router, {
-                  get children() {
-                    return [
-                      typeof location === "string"
-                        ? createComponent(
-                            () => (
-                              useNavigate()(location as string, { replace: true, scroll: false }),
-                              null
-                            ),
-                            {}
-                          )
-                        : null,
-                      createComponent(wrappedUi, {})
-                    ];
-                  },
-                  data: options.routeDataFunc,
-                  get source() {
-                    return memoryIntegration();
-                  }
+                createComponent(MemoryRouter, {
+                  history,
+                  get children() { return createComponent(wrappedUi, {}); }
                 })
             };
           } catch (e: unknown) {
@@ -279,7 +262,11 @@ export function testEffect<T extends any = void>(
 
 function cleanupAtContainer(ref: Ref) {
   const { container, dispose } = ref;
-  dispose();
+  if (typeof dispose === 'function') {
+    dispose();
+  } else {
+    console.warn('solid-testing-library: dispose is not a function - maybe your tests include multiple solid versions!');
+  }
 
   if (container?.parentNode === document.body) {
     document.body.removeChild(container);

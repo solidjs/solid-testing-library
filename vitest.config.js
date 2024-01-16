@@ -5,7 +5,9 @@ export default defineConfig({
   plugins: [solidPlugin()],
   test: {
     coverage: {
-      reporter: ["lcov", "text"]
+      reporter: ["lcov", "text"],
+      include: ["src/index.ts"],
+      exclude: ["src/types.ts"]
     },
     watch: false,
     globals: true,
@@ -14,8 +16,7 @@ export default defineConfig({
     transformMode: {
       web: [/\.[jt]sx?$/]
     },
-    include: "src/__tests__/*.tsx",
-    deps: { registerNodeLoader: false }
+    include: "src/__tests__/*.tsx"
   },
   resolve: {
     conditions: ["browser", "development"]

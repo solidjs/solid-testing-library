@@ -1,4 +1,4 @@
-import "@testing-library/jest-dom/extend-expect";
+import "@testing-library/jest-dom/vitest";
 import { createResource, Show } from "solid-js";
 import { screen, render, waitForElementToBeRemoved } from "..";
 

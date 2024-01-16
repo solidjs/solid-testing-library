@@ -1,5 +1,5 @@
-import "@testing-library/jest-dom/extend-expect";
-import { onCleanup } from "solid-js";
+import "@testing-library/jest-dom/vitest";
+import { onCleanup, render as soildRender } from "solid-js";
 import { cleanup, render } from "..";
 
 test("cleans up the document", () => {
@@ -24,3 +24,4 @@ test("cleanup does not error when an element is not a child", () => {
   render(() => <div />, { container: document.createElement("div") });
   cleanup();
 });
+

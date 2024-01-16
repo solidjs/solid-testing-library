@@ -1,4 +1,4 @@
-import "@testing-library/jest-dom/extend-expect";
+import "@testing-library/jest-dom/vitest";
 import {
   createSignal,
   createEffect,
@@ -8,7 +8,6 @@ import {
   Accessor,
   getOwner,
   createRoot,
-  runWithOwner
 } from "solid-js";
 import type { JSX } from "solid-js";
 import { render, renderDirective, renderHook, screen, testEffect } from "..";
