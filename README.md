@@ -56,7 +56,7 @@ If you using Jest we recommend using [solid-jest](https://github.com/solidjs/sol
 
 ## Integration with Vite
 
-A working Vite template setup with `solid-testing-library` and TypeScript support can be found [here](https://github.com/solidjs/solid-start/tree/main/examples/with-vitest).
+A working Vite template setup with `solid-testing-library` and TypeScript support can be found [for classic solid](https://github.com/solidjs/templates/tree/main/ts-vitest) and [for solid-start](https://github.com/solidjs/solid-start/tree/main/examples/with-vitest).
 
 
 ## Docs
@@ -98,7 +98,7 @@ it('uses params', async () => {
 
 It uses `@solidjs/router`, so if you want to use a different router, you should consider the `wrapper` option instead. If you attempt to use this without having the package installed, you will receive an error message.
 
-⚠️ Solid.js external reactive state does not require any DOM elements to run in, so our `renderHook` call has no `container`, `baseElement` or queries in its options or return value. Instead, it has an `owner` to be used with [`runWithOwner`](https://www.solidjs.com/docs/latest/api#runwithowner) if required. It also exposes a `cleanup` function, though this is already automatically called after the test is finished.
+⚠️ Solid.js external reactive state does not require any DOM elements to run in, so our `renderHook` call to test hooks in the context of a component (if your hook does not require the context of a component, `createRoot` should suffice to test the reactive behavior; for convenience, we also have `createEffect`, which is described later) has no `container`, `baseElement` or queries in its options or return value. Instead, it has an `owner` to be used with [`runWithOwner`](https://www.solidjs.com/docs/latest/api#runwithowner) if required. It also exposes a `cleanup` function, though this is already automatically called after the test is finished.
 
 ```ts
 function renderHook<Args extends any[], Result>(
@@ -181,7 +181,7 @@ It allows running the effect inside a defined owner that is received as an optio
 
 ## Issues
 
-If you find any issues, please [check on the issues page](https://github.com/solidjs/solid-testing-library/issues) if they are already known. If not, opening an issue will be much appreciated, even more so if it contains a
+If you find any issues *with this library*, please [check on the issues page](https://github.com/solidjs/solid-testing-library/issues) if they are already known. If not, opening an issue will be much appreciated, even more so if it contains a
 
 - short description
 - minimal reproduction code
@@ -189,37 +189,14 @@ If you find any issues, please [check on the issues page](https://github.com/sol
 
 If you think you can fix an issue yourself, feel free to [open a pull-request](https://github.com/solidjs/solid-testing-library/pulls). If functionality changes, please don't forget to add or adapt tests.
 
+Please keep in mind that not all issues related to testing Solid.js code are directly related to this library. In some cases, the culprit might be [Solid's vite plugin](https://github.com/solidjs/vite-plugin-solid) or [Vitest](https://github.com/vitest-dev/vitest) instead. Posting the issue to the correct project will speed up fixing it; if in doubt, you can ask [on our discord](https://discord.com/invite/solidjs).
+
 
 ### Known issues
 
 If you are using [`vitest`](https://vitest.dev/), then tests might fail, because the packages `solid-js`, and `@solidjs/router` (if used) need to be loaded only once, and they could be loaded both through the internal `vite` server and through node. Typical bugs that happen because of this is that dispose is supposedly undefined, or the router could not be loaded.
 
-There are three ways you could attempt to work around this problem. If they work depends on your version of `vitest`, which version of `node-js` and what package manager you use (some of them change the way node resolves modules):
-
-```ts
-// this is inside your vite(st) config:
-{
-    test: {
-        deps: {
-            // 1nd way: remove the @solidjs/router part if you do not use it:
-            inline: [/solid-js/, /@solidjs\/router/],
-            // 2st way 
-            registerNodeLoader: false,
-        },
-        // 3rd way: alias the resolution
-        resolve: {
-            alias: {
-                "solid-js": "node_modules/solid-js/dist/dev.js",
-                // only needed if the router is used:
-                "@solidjs/router": "node_modules/@solidjs/router/index.jsx",
-            },
-        },
-    },
-}
-```
-
-At the moment of writing this, the 1st way seems to be the most reliable for the default solid template. Solid-start's vite plugin might need a different configuration.
-
+Since version 2.8.2, our vite plugin has gained the capability to configure everything for testing, so you should only need extra configuration for globals, coverage, etc.
 
 ## Acknowledgement
 

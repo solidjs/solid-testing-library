@@ -9,6 +9,7 @@ import {
   getOwner,
   createRoot,
 } from "solid-js";
+import { For } from "solid-js/web";
 import type { JSX } from "solid-js";
 import { render, renderDirective, renderHook, screen, testEffect } from "..";
 import userEvent from "@testing-library/user-event";
@@ -96,6 +97,11 @@ test("wrapper option includes context", async () => {
   );
   const { asFragment } = render(() => <div>{useContext(context)}</div>, { wrapper: Wrapper });
   expect(asFragment()).toBe("<div>works</div>");
+});
+
+test("For does not need a parent wrapper", () => {
+  const { getByText } = render(() => <For each={['a', 'b', 'c']}>{(i) => <span>{i}</span>}</For>);
+  expect(getByText('b')).toBeInTheDocument();
 });
 
 test("renderHook works correctly", () => {
@@ -230,3 +236,4 @@ test("testEffect runs with owner", () => {
     owner!
   );
 });
+

@@ -12,13 +12,6 @@ export default defineConfig({
     watch: false,
     globals: true,
     clearMocks: true,
-    environment: "jsdom",
-    transformMode: {
-      web: [/\.[jt]sx?$/]
-    },
     include: "src/__tests__/*.tsx"
   },
-  resolve: {
-    conditions: ["browser", "development"]
-  }
 });
