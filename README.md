@@ -86,10 +86,10 @@ Solid.js reactive changes are pretty instantaneous, so there is rarely need to u
 ```tsx
 it('uses params', async () => {
   const App = () => (
-    <Routes>
+    <>
       <Route path="/ids/:id" component={() => <p>Id: {useParams()?.id}</p>} />
       <Route path="/" component={() => <p>Start</p>} />
-    </Routes>
+    </>
   ); 
   const { findByText } = render(() => <App />, { location: "ids/1234" });
   expect(await findByText("Id: 1234")).not.toBeFalsy();
