@@ -1,6 +1,6 @@
 {
   "name": "@solidjs/testing-library",
-  "version": "0.8.6",
+  "version": "0.8.7",
   "description": "Simple and complete Solid testing utilities that encourage good testing practices.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -60,25 +60,25 @@
     "@testing-library/dom": "^9.3.4"
   },
   "devDependencies": {
-    "@solidjs/router": "^0.10.10",
-    "@testing-library/jest-dom": "^6.4.0",
+    "@solidjs/router": "^0.13.1",
+    "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/user-event": "^14.5.2",
-    "@vitest/coverage-v8": "^1.2.2",
+    "@vitest/coverage-v8": "^1.4.0",
     "coveralls": "^3.1.1",
     "jsdom": "^24.0.0",
-    "prettier": "^3.2.4",
+    "prettier": "^3.2.5",
     "pretty-format": "^29.7.0",
-    "solid-js": "^1.8.12",
-    "tsup": "8.0.1",
-    "typescript": "^5.3.3",
-    "vite-plugin-solid": "^2.9.1",
-    "vitest": "^1.2.2"
+    "solid-js": "^1.8.16",
+    "tsup": "8.0.2",
+    "typescript": "^5.4.3",
+    "vite-plugin-solid": "^2.10.2",
+    "vitest": "^1.4.0"
   },
   "peerDependencies": {
     "@solidjs/router": ">=0.9.0",
     "solid-js": ">=1.0.0"
   },
-  "peerDependencyMeta": {
+  "peerDependenciesMeta": {
     "@solidjs/router": {
       "optional": true
     }
