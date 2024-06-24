@@ -25,7 +25,7 @@ import type {
 } from "./types";
 
 /* istanbul ignore next */
-if (!process.env.STL_SKIP_AUTO_CLEANUP) {
+if (typeof process === 'undefined' || !process.env.STL_SKIP_AUTO_CLEANUP) {
   //@ts-ignore
   if (typeof afterEach === "function") { afterEach(cleanup); }
 }
