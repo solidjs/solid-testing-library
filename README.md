@@ -96,7 +96,7 @@ it('uses params', async () => {
 });
 ```
 
-It uses `@solidjs/router`, so if you want to use a different router, you should consider the `wrapper` option instead. If you attempt to use this without having the package installed, you will receive an error message.
+It uses `@solidjs/router`, so if you want to use a different router, you should consider the `wrapper` option instead. If you attempt to use this without having the package installed, you will receive an error message. At the moment, there is an issue with using `useNavigate` inside of the tests (since you cannot get into the context of a Route), but `<A href="..." noScroll>` inside a `<Route>` will work fine to switch routes during tests.
 
 ⚠️ Solid.js external reactive state does not require any DOM elements to run in, so our `renderHook` call to test hooks in the context of a component (if your hook does not require the context of a component, `createRoot` should suffice to test the reactive behavior; for convenience, we also have `testEffect`, which is described later) has no `container`, `baseElement` or queries in its options or return value. Instead, it has an `owner` to be used with [`runWithOwner`](https://www.solidjs.com/docs/latest/api#runwithowner) if required. It also exposes a `cleanup` function, though this is already automatically called after the test is finished.
 
