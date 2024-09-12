@@ -6,7 +6,7 @@ import {
   createSignal,
   getOwner,
   lazy,
-  onError,
+  catchError,
   onMount,
   Owner,
   runWithOwner
@@ -239,25 +239,21 @@ export function testEffect<T extends any = void>(
   fn: (done: (result: T) => void) => void,
   owner?: Owner
 ): Promise<T> {
-  const context: {
-    promise?: Promise<T>;
-    done?: (result: T) => void;
-    fail?: (error: any) => void;
-    dispose?: () => void;
-  } = {};
-  context.promise = new Promise<T>((resolve, reject) => {
-    context.done = resolve;
-    context.fail = reject;
+  let done: (result: T) => void;
+  let fail: (error: any) => void;
+  let promise = new Promise<T>((resolve, reject) => {
+    done = resolve;
+    fail = reject;
   });
-  context.dispose = createRoot(dispose => {
-    onError(err => context.fail?.(err));
-    (owner ? (done: (result: T) => void) => runWithOwner(owner, () => fn(done)) : fn)(result => {
-      context.done?.(result);
-      dispose();
-    });
-    return dispose;
-  });
-  return context.promise;
+  createRoot(dispose => {
+    catchError(() => {
+      fn(result => {
+        done(result);
+        dispose();
+      });
+    }, fail)
+  }, owner);
+  return promise
 }
 
 function cleanupAtContainer(ref: Ref) {
