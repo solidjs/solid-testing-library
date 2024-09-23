@@ -61,7 +61,7 @@ A working Vite template setup with `solid-testing-library` and TypeScript suppor
 
 ## Docs
 
-See the [docs](https://testing-library.com/docs/preact-testing-library/intro) over at the Testing Library website.
+See the [docs](https://testing-library.com/docs/solid-testing-library/intro) over at the Testing Library website.
 
 There are several key differences, though:
 
@@ -73,7 +73,7 @@ const results = render(<YourComponent />, options);
 ```
 
 ```tsx
-// With solid-testing-library
+// With @solidjs/testing-library
 const results = render(() => <YourComponent />, options);
 ```
 
