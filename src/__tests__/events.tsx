@@ -1,4 +1,4 @@
-import { Dynamic } from "solid-js/web";
+import { Dynamic } from "@solidjs/web";
 import { render, fireEvent } from "..";
 import userEvent from "@testing-library/user-event";
 import type { Mock } from "vitest";

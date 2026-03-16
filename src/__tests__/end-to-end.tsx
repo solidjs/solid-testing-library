@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { createResource, Show } from "solid-js";
+import { createMemo, Loading } from "solid-js";
 import { screen, render, waitForElementToBeRemoved } from "..";
 
 const fetchAMessage = () =>
@@ -14,11 +14,11 @@ const fetchAMessage = () =>
   });
 
 function ComponentWithLoader() {
-  const [data] = createResource("data", fetchAMessage);
+  const data = createMemo(fetchAMessage);
   return (
-    <Show when={!data.loading} fallback={<div>Loading...</div>}>
+    <Loading fallback="Loading...">
       <div data-testid="message">Loaded this message: {data()!.returnedMessage}!</div>
-    </Show>
+    </Loading>
   );
 }
 

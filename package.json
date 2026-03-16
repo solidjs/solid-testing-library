@@ -59,22 +59,22 @@
     "@testing-library/dom": "^10.4.1"
   },
   "devDependencies": {
-    "@solidjs/router": "^0.15.3",
-    "@testing-library/jest-dom": "^6.8.0",
+    "@solidjs/router": "^0.15.4",
+    "@solidjs/web": "2.0.0-beta.2",
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/user-event": "^14.6.1",
-    "@vitest/coverage-v8": "^3.2.4",
-    "jsdom": "^26.1.0",
-    "prettier": "^3.6.2",
-    "pretty-format": "^30.0.5",
-    "solid-js": "^1.9.9",
+    "@vitest/coverage-v8": "4.0.18",
+    "jsdom": "^29.0.0",
+    "prettier": "^3.8.1",
+    "solid-js": "2.0.0-beta.2",
     "tsup": "8.5.0",
-    "typescript": "^5.9.2",
-    "vite-plugin-solid": "^2.11.8",
-    "vitest": "^3.2.4"
+    "typescript": "^5.9.3",
+    "vite-plugin-solid": "3.0.0-next.2",
+    "vitest": "4.0.18"
   },
   "peerDependencies": {
     "@solidjs/router": ">=0.9.0",
-    "solid-js": ">=1.0.0"
+    "solid-js": ">=2.0.0"
   },
   "peerDependenciesMeta": {
     "@solidjs/router": {

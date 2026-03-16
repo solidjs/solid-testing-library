@@ -2,16 +2,17 @@ import { getQueriesForElement, prettyDOM } from "@testing-library/dom";
 import {
   Accessor,
   createComponent,
+  createEffect,
   createRoot,
   createSignal,
   getOwner,
   lazy,
-  catchError,
-  onMount,
+  onSettled,
+  runWithOwner,
   Owner,
-  runWithOwner
+  Errored
 } from "solid-js";
-import { hydrate as solidHydrate, render as solidRender } from "solid-js/web";
+import { hydrate as solidHydrate, render as solidRender } from "@solidjs/web";
 
 import type {
   Ui,
@@ -184,6 +185,7 @@ export function renderHook<A extends any[], R>(
  * @param directive {(ref, value: () => unknown)} a reusable custom directive
  * @param options {RenderDirectiveOptions} test options
  * @returns {RenderDirectiveResult} references and tools to test the directive
+ * @deprecated
  *
  * ```ts
  * const called = vi.fn()
@@ -228,13 +230,35 @@ export function renderDirective<A extends any, U extends A, E extends HTMLElemen
             ? options.targetElement()
             : undefined)) ||
         document.createElement("div");
-      onMount(() => directive(targetElement as E, arg as Accessor<U>));
+      onSettled(() => directive(targetElement as E, arg as Accessor<U>));
       return targetElement;
     }, options),
     { arg, setArg }
   );
 }
 
+export const renderRefHandler = renderDirective
+
+const runWithOptionalOwner = <T>(owner: Owner | null | undefined, fn: () => T): T =>
+  owner ? runWithOwner(owner, fn) : fn();
+
+/**
+ * testEffect - provides an asynchronous scaffold to test effects in unit tests
+ *
+ * @param {(done: (result: T) => void) => void} test function, calling done() ends the test
+ * @param {Owner | null | undefined} the reactive context that should own the test function
+ *
+ * ```ts
+ * it("tests an effect", () => testEffect((done) => {
+ *   const [item, setItem] = createSignal(0);
+ *   createEffect(() => item(), (item) => {
+ *     if (item === 0) { setItem(1); }
+       else if (item === 1) { done(); }
+       else { throw new Error('item is !== 0/1: ' + item); }
+ *   });
+ * });
+ * ```
+ */
 export function testEffect<T extends any = void>(
   fn: (done: (result: T) => void) => void,
   owner?: Owner
@@ -246,13 +270,20 @@ export function testEffect<T extends any = void>(
     fail = reject;
   });
   createRoot(dispose => {
-    catchError(() => {
-      fn(result => {
-        done(result);
-        dispose();
-      });
-    }, fail)
-  }, owner);
+    // TODO: replace with `createErrorBoundary` if it is exported
+    createComponent(Errored, {
+      get fallback() { return (err: Error, _reset: () => void) => (fail(err), ""); },
+      get children() {
+        runWithOptionalOwner(owner, () => {
+          fn(result => {
+            done(result);
+            dispose();
+          });
+        });
+        return "Testing";
+      },
+    });
+  });
   return promise
 }
 
