@@ -32,10 +32,10 @@ export type Result = BoundFunctions<typeof queries> & {
   unmount: () => void;
 };
 
-export type RenderHookOptions<A extends any[]> = {
+export type RenderHookOptions<A> = {
   initialProps?: A;
   wrapper?: Component<{ children: JSX.Element }>;
-} | A;
+};
 
 export type RenderHookResult<R> = {
   result: R;
@@ -43,12 +43,6 @@ export type RenderHookResult<R> = {
   cleanup: () => void;
 };
 
-export type RenderDirectiveOptions<A extends any, E extends HTMLElement = HTMLDivElement> = Options & {
-  initialValue?: A;
+export type RenderRefOptions<A extends any, E extends HTMLElement = HTMLDivElement> = Options & {
   targetElement?: Lowercase<E['nodeName']> | E | (() => E);
-};
-
-export type RenderDirectiveResult<A extends any> = Result & {
-  arg: Accessor<A>,
-  setArg: Setter<A>
 };

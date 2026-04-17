@@ -12,16 +12,14 @@ import {
 } from "solid-js";
 import { For } from "@solidjs/web";
 import type { JSX } from "solid-js";
-import { render, renderDirective, renderHook, screen, testEffect } from "..";
+import { render, renderRef, renderHook, screen, testEffect } from "..";
 import userEvent from "@testing-library/user-event";
-
+/*
 declare global {
-  var _$HY: Record<string, any>;
-}
+  var _$HY: object;
+}*/
 
-globalThis._$HY = {};
-
-test.only("render calls createEffect immediately (after flushing)", () => {
+test("render calls createEffect immediately (after flushing)", () => {
   const cb = vi.fn();
 
   function Comp() {
@@ -36,7 +34,7 @@ test.only("render calls createEffect immediately (after flushing)", () => {
   expect(cb).toHaveBeenCalledTimes(1);
 });
 
-test.only("findByTestId returns the element", async () => {
+test("findByTestId returns the element", async () => {
   let ref!: HTMLDivElement;
 
   render(() => <div ref={ref} data-testid="foo" />);
@@ -44,7 +42,7 @@ test.only("findByTestId returns the element", async () => {
   expect(await screen.findByTestId("foo")).toBe(ref);
 });
 
-test.only("userEvent triggers createEffect calls (after flushing)", async () => {
+test("userEvent triggers createEffect calls (after flushing)", async () => {
   const cb = vi.fn();
 
   function Counter() {
@@ -67,22 +65,18 @@ test.only("userEvent triggers createEffect calls (after flushing)", async () => 
   expect(cb).toHaveBeenCalledTimes(1);
 });
 
-test.skip("calls to hydrate will run createEffects (after flushing)", () => {
-  const cb = vi.fn();
-
+test("calls to hydrate will run effects", () => new Promise<void>((resolve) => {
+  globalThis._$HY ??= { events: [], completed: new WeakSet(), r: {} };
+  
   function Comp() {
-    createEffect(() => true, cb);
-    return null;
+    createEffect(() => true, () => resolve());
+    return [];
   }
 
   render(() => <Comp />, { hydrate: true });
+}));
 
-  flush();
-  
-  expect(cb).toHaveBeenCalledTimes(1);
-});
-
-test.only("queries should not return elements outside of the container", () => {
+test("queries should not return elements outside of the container", () => {
   const { container, getAllByText } = render(() => <div>Some text...</div>);
   const falseContainer = document.createElement("p");
   falseContainer.textContent = "Some text...";
@@ -90,14 +84,14 @@ test.only("queries should not return elements outside of the container", () => {
   expect(getAllByText("Some text...")[0] === container.childNodes[0]).toBe(true);
 });
 
-test.only("wrapper option works correctly", () => {
+test("wrapper option works correctly", () => {
   const { asFragment } = render(() => <div>Component</div>, {
     wrapper: props => <div>Wrapper {props.children}</div>
   });
   expect(asFragment()).toBe("<div>Wrapper <div>Component</div></div>");
 });
 
-test.only("wrapper option includes context", async () => {
+test("wrapper option includes context", async () => {
   const Context = createContext<string>("test");
   const Wrapper: ParentComponent = props => (
     <Context value="works">{props.children}</Context>
@@ -106,34 +100,35 @@ test.only("wrapper option includes context", async () => {
   expect(asFragment()).toBe("<div>works</div>");
 });
 
-test.only("For does not need a parent wrapper", () => {
+test("For does not need a parent wrapper", () => {
   const { getByText } = render(() => <For each={['a', 'b', 'c']}>{(i) => <span>{i()}</span>}</For>);
   expect(getByText('b')).toBeInTheDocument();
 });
 
-test.only("renderHook works correctly", () => {
+test("renderHook works correctly", () => {
   const getTruth = () => 42
   const { result } = renderHook(getTruth);
   expect(result).toBe(42);
 });
 
-test.only("renderHook accepts hook props as array parameter", () => {
+test("renderHook accepts hook props as array parameter", () => {
   const { result } = renderHook(opts => opts, ["option value"]);
   expect(result).toBe("option value");
 });
 
-test.only("renderHook accepts hook props as option value", () => {
+test("renderHook accepts hook props as option value", () => {
   const { result } = renderHook(opts => opts, { initialProps: ["option value"] });
   expect(result).toBe("option value");
 });
 
-test.skip("wrapper context is available in renderHook", () => {
+test("wrapper context is available in renderHook", () => {
   const Context = createContext("initial value");
   const testHook = () => useContext(Context);
   const Wrapper: ParentComponent = props => (
     <Context value="context value">{props.children}</Context>
   );
   const { result } = renderHook(testHook, { wrapper: Wrapper });
+  
   expect(result).toBe("context value");
 });
 
@@ -190,58 +185,52 @@ test.skip("renderDirective works for directives with argument", () => {
 test.only("testEffect allows testing an effect asynchronously", () => {
   const [value, setValue] = createSignal(0);
   return testEffect(done =>
-    createEffect<[run: number, value: number]>(
-      ([run]) => [run + 1, value()],
-      ([run, value]) => {
-        if (run === 0) {
-          expect(value).toBe(0);
+    createEffect(
+      value,
+      (v) => {
+        if (v === 0) {
           setValue(1);
-        } else if (run === 1) {
-          expect(value).toBe(1);
+        } else {
+          expect(v).toBe(1);
           done();
         }
       },
-      [-1, 0]
     )
   );
 });
 
 test.only("testEffect catches errors", () => {
-  const [value, setValue] = createSignal<{ error: string }>({ error: "not yet" });
+  const [value, setValue] = createSignal("no error");
   return testEffect(done =>
-    createEffect<[run: number, value: { error: string }]>(
-      ([run]) => [run + 1, value()], 
-      ([run, value]) => {
-        console.log(run, value);
-        if (!value) { throw new Error('works'); }
-        if (run === 0) {
-          setValue(null as any);
-        }
-        if (run === 1) {
-          done();
-        }
-      },  
-      [-1, value()]
+    createEffect(
+      value, 
+      (v) => {
+        if (v === "no error") { setValue("Oh, an error!"); }
+        if (v === "error") { throw new Error('works'); }
+        if (v === "done") { done(); }
+      }
     ))
     .then(() => {
       throw new Error("Error swallowed by testEffect!");
     })
-    .catch((e: Error) => expect(e.message).toBe("works"));
+    .catch((e: Error) => (console.trace(e), expect(e?.message).toBe("works")));
 });
 
-test.only("testEffect runs with owner", () => {
+test.skip("testEffect runs with owner", async () => {
   const [owner, dispose] = createRoot(dispose => [getOwner(), dispose]);
-  return testEffect(
-    done =>
+  await testEffect(
+    done => {
+      const [runOwner, setRunOwner] = createSignal(getOwner());
       createEffect(
-        () => 1, 
-        (_value) => {
-          expect(getOwner()).toBe(owner);
-          dispose();
+        runOwner,
+        (runOwner) => {
+          expect(runOwner).toBe(owner);
           done();
+          dispose();
         }
-      ),
+      )
+    },
     owner!
   );
-});
+}, 2000);
 

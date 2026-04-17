@@ -1,16 +1,13 @@
 import { getQueriesForElement, prettyDOM } from "@testing-library/dom";
 import {
-  Accessor,
   createComponent,
-  createEffect,
+  createErrorBoundary,
   createRoot,
-  createSignal,
+  flush,
   getOwner,
-  lazy,
   onSettled,
   runWithOwner,
-  Owner,
-  Errored
+  type Owner,
 } from "solid-js";
 import { hydrate as solidHydrate, render as solidRender } from "@solidjs/web";
 
@@ -21,9 +18,30 @@ import type {
   Ref,
   RenderHookResult,
   RenderHookOptions,
-  RenderDirectiveOptions,
-  RenderDirectiveResult
+  RenderRefOptions,
 } from "./types";
+
+/* type extension for hydration context */
+declare global {
+  var _$HY: object;
+}
+
+/**
+ * Solid.js 2.0 no longer supports directives, so this function has been replaced with renderRef
+ * @deprecated
+ *
+ * ```ts
+ * // before
+ * const directive = (ref, arg) => ...;
+ * const { arg, setArg } = renderDirective(directive, { targetElement });
+ *
+ * // after
+ * const [arg, setArg] = createSignal();
+ * const refHandler = (arg) => (ref) => ...;
+ * renderRef(ref(arg), { targetElement });
+ * ```
+ */
+export function renderDirective(...args: any[]) {}
 
 /* istanbul ignore next */
 if (typeof process === 'undefined' || !process.env.STL_SKIP_AUTO_CLEANUP) {
@@ -60,7 +78,7 @@ const mountedContainers = new Set<Ref>();
  * - `result.`[queries] - testing library queries, see https://testing-library.com/docs/queries/about)
  */
 function render(ui: Ui, options: Options = {}): Result {
-  let { container, baseElement = container, queries, hydrate = false, wrapper, location } = options;
+  let { container, baseElement = container, queries, hydrate = false, wrapper } = options;
 
   if (!baseElement) {
     // Default to document.body instead of documentElement to avoid output of potentially-large
@@ -82,34 +100,9 @@ function render(ui: Ui, options: Options = {}): Result {
           })
       : ui;
 
-  const routedUi: Ui =
-    typeof location === "string"
-      ? lazy(async () => {
-          try {
-            const { createMemoryHistory, MemoryRouter } = await import("@solidjs/router");
-            const history = createMemoryHistory();
-            location && history.set({ value: location, scroll: false, replace: true });
-            return {
-              default: () =>
-                createComponent(MemoryRouter, {
-                  history,
-                  get children() { return createComponent(wrappedUi, {}); }
-                })
-            };
-          } catch (e: unknown) {
-            console.error(
-              `Error attempting to initialize @solidjs/router:\n"${
-                (e instanceof Error && e.message) || e?.toString() || "unknown error"
-              }"`
-            );
-            return { default: () => createComponent(wrappedUi, {}) };
-          }
-        })
-      : wrappedUi;
-
   const dispose = hydrate
-    ? (solidHydrate(routedUi, container) as unknown as () => void)
-    : solidRender(routedUi, container);
+    ? solidHydrate(wrappedUi, container)
+    : solidRender(wrappedUi, container);
 
   // We'll add it to the mounted containers regardless of whether it's actually
   // added to document.body so the cleanup method works regardless of whether
@@ -150,42 +143,39 @@ function render(ui: Ui, options: Options = {}): Result {
  * - `result.owner` - the reactive owner in which the hook is run (in order to run other reactive code in the same context with [`runWithOwner`](https://www.solidjs.com/docs/latest/api#runwithowner))
  * - `result.cleanup()` - calls the cleanup function of the hook/primitive
  */
-export function renderHook<A extends any[], R>(
-  hook: (...args: A) => R,
-  options?: RenderHookOptions<A>
+function renderHook<H extends (...args: any) => unknown, A = Parameters<H>, R = ReturnType<H>>(
+  hook: H,
+  options: A | RenderHookOptions<A> = {},
 ): RenderHookResult<R> {
-  const initialProps: A | [] = Array.isArray(options) ? options : options?.initialProps || [];
-  const [dispose, owner, result] = createRoot(dispose => {
-    if (
-      typeof options === "object" &&
-      "wrapper" in options &&
-      typeof options.wrapper === "function"
-    ) {
-      let result: ReturnType<typeof hook>;
-      options.wrapper({
-        get children() {
-          return createComponent(() => {
-            result = hook(...(initialProps as A));
-            return null;
-          }, {});
-        }
-      });
-      return [dispose, getOwner(), result!];
-    }
-    return [dispose, getOwner(), hook(...(initialProps as A))];
-  });
-
-  mountedContainers.add({ dispose });
-
-  return { result, cleanup: dispose, owner };
+  const initialProps: A = options instanceof Object
+    ? 'initialProps' in options 
+      ? options.initialProps
+      : Array.isArray(options.initialProps) && options.initialProps
+    : [] as A
+  
+  const container = document.createElement('div');
+  document.body.appendChild(container);
+  let result: R;
+  let owner: Owner | null = null;
+  const Comp = () => {
+    flush();
+    result = hook(...initialProps);
+    owner = getOwner();
+    return null;
+  }
+  const wrapped = options.wrapper
+    ? () => createComponent(options.wrapper, { get children() { return createComponent(Comp, {}); } })
+    : () => createComponent(Comp, {});
+  const dispose = solidRender(wrapped, container);
+  mountedContainers.add({ container, dispose });
+  return { result: result!, cleanup: dispose, owner };
 }
 
 /**
- * Applies a directive to a test container
+ * Applies ref(s) to a test container
  * @param directive {(ref, value: () => unknown)} a reusable custom directive
- * @param options {RenderDirectiveOptions} test options
+ * @param options {RenderRefOptions} test options
  * @returns {RenderDirectiveResult} references and tools to test the directive
- * @deprecated
  *
  * ```ts
  * const called = vi.fn()
@@ -195,7 +185,6 @@ export function renderHook<A extends any[], R>(
  * expect(called).toBeCalled();
  * ```
  * ### Options
- * - `options.initialValue` - a value added to the directive
  * - `options.targetElement` - the name of a HTML element as a string or a HTMLElement or a function returning a HTMLElement
  * - `options.container` - the HTML element which the UI will be rendered into; otherwise a `<div>` will be created
  * - `options.baseElement` - the parent of the container, the default will be `<body>`
@@ -213,40 +202,31 @@ export function renderHook<A extends any[], R>(
  * - `result.unmount()` - unmounts the component, usually automatically called in cleanup
  * - `result.`[queries] - testing library queries, see https://testing-library.com/docs/queries/about)
  */
-export function renderDirective<A extends any, U extends A, E extends HTMLElement>(
-  directive: (ref: E, arg: Accessor<U>) => void,
-  options?: RenderDirectiveOptions<U, E>
-): RenderDirectiveResult<U> {
-  const [arg, setArg] = createSignal(options?.initialValue as U);
-  return Object.assign(
-    render(() => {
-      const targetElement =
-        (options?.targetElement &&
-          (options.targetElement instanceof HTMLElement
-            ? options.targetElement
-            : typeof options.targetElement === "string"
-            ? document.createElement(options.targetElement)
-            : typeof options.targetElement === "function"
-            ? options.targetElement()
-            : undefined)) ||
-        document.createElement("div");
-      onSettled(() => directive(targetElement as E, arg as Accessor<U>));
-      return targetElement;
-    }, options),
-    { arg, setArg }
-  );
+function renderRef<A extends any, U extends A, E extends HTMLElement>(
+  ref: (ref: E) => void,
+  options: RenderRefOptions<U, E> = {}
+): Result {
+  return render(() => {
+    const targetElement =
+      (options?.targetElement &&
+        (options.targetElement instanceof HTMLElement
+          ? options.targetElement
+          : typeof options.targetElement === "string"
+          ? document.createElement(options.targetElement)
+          : typeof options.targetElement === "function"
+          ? options.targetElement()
+          : undefined)) ||
+      document.createElement("div");
+    onSettled(() => Array.isArray(ref) ? ref.forEach(r => r(targetElement as E)) : ref(targetElement as E));
+    return targetElement;
+  });
 }
-
-export const renderRefHandler = renderDirective
-
-const runWithOptionalOwner = <T>(owner: Owner | null | undefined, fn: () => T): T =>
-  owner ? runWithOwner(owner, fn) : fn();
 
 /**
  * testEffect - provides an asynchronous scaffold to test effects in unit tests
  *
- * @param {(done: (result: T) => void) => void} test function, calling done() ends the test
- * @param {Owner | null | undefined} the reactive context that should own the test function
+ * @param {(done: () => void) => void} testee - test function, calling done() ends the test
+ * @param {Owner | null | undefined} owner - the reactive context that should own the test function
  *
  * ```ts
  * it("tests an effect", () => testEffect((done) => {
@@ -259,32 +239,14 @@ const runWithOptionalOwner = <T>(owner: Owner | null | undefined, fn: () => T): 
  * });
  * ```
  */
-export function testEffect<T extends any = void>(
-  fn: (done: (result: T) => void) => void,
-  owner?: Owner
+function testEffect<T>(
+  testee: (done: undefined extends T ? ((result?: T) => void) : ((result: T) => void)) => void,
+  owner: Owner | null = null
 ): Promise<T> {
-  let done: (result: T) => void;
-  let fail: (error: any) => void;
-  let promise = new Promise<T>((resolve, reject) => {
-    done = resolve;
-    fail = reject;
-  });
-  createRoot(dispose => {
-    // TODO: replace with `createErrorBoundary` if it is exported
-    createComponent(Errored, {
-      get fallback() { return (err: Error, _reset: () => void) => (fail(err), ""); },
-      get children() {
-        runWithOptionalOwner(owner, () => {
-          fn(result => {
-            done(result);
-            dispose();
-          });
-        });
-        return "Testing";
-      },
-    });
-  });
-  return promise
+  return new Promise((done, fail) => createRoot(dispose => runWithOwner(owner || getOwner(), () => createErrorBoundary(
+    () => testee((result: any) => (done(result), dispose())),
+    (err: unknown) => (fail(err), queueMicrotask(() => dispose())),
+  )())));
 }
 
 function cleanupAtContainer(ref: Ref) {
@@ -307,4 +269,4 @@ function cleanup() {
 }
 
 export * from "@testing-library/dom";
-export { render, cleanup };
+export { render, renderHook, renderRef, testEffect, cleanup };

@@ -81,23 +81,6 @@ const results = render(() => <YourComponent />, options);
 
 Solid.js reactive changes are pretty instantaneous, so there is rarely need to use `waitFor(…)`, `await findByRole(…)` and other asynchronous queries to test the rendered result, except for transitions, suspense, resources and router navigation.
 
-⚠️ In extension of the original API, the render function of this testing library supports a convenient `location` option that will set up an in-memory router pointing at the specified location. Since this setup is not instantaneous, you need to first use asynchronous queries (`findBy`) after employing it:
-
-```tsx
-it('uses params', async () => {
-  const App = () => (
-    <>
-      <Route path="/ids/:id" component={() => <p>Id: {useParams()?.id}</p>} />
-      <Route path="/" component={() => <p>Start</p>} />
-    </>
-  ); 
-  const { findByText } = render(() => <App />, { location: "ids/1234" });
-  expect(await findByText("Id: 1234")).not.toBeFalsy();
-});
-```
-
-It uses `@solidjs/router`, so if you want to use a different router, you should consider the `wrapper` option instead. If you attempt to use this without having the package installed, you will receive an error message. At the moment, there is an issue with using `useNavigate` inside of the tests (since you cannot get into the context of a Route), but `<A href="..." noScroll>` inside a `<Route>` will work fine to switch routes during tests.
-
 ⚠️ Solid.js external reactive state does not require any DOM elements to run in, so our `renderHook` call to test hooks in the context of a component (if your hook does not require the context of a component, `createRoot` should suffice to test the reactive behavior; for convenience, we also have `testEffect`, which is described later) has no `container`, `baseElement` or queries in its options or return value. Instead, it has an `owner` to be used with [`runWithOwner`](https://www.solidjs.com/docs/latest/api#runwithowner) if required. It also exposes a `cleanup` function, though this is already automatically called after the test is finished.
 
 ```ts
@@ -123,35 +106,37 @@ expect(result).toBe(true);
 
 If you are using a `wrapper` with `renderHook`, make sure it will **always** return `props.children` - especially if you are using a context with asynchronous code together with `<Show>`, because this is required to get the value from the hook and it is only obtained synchronously once and you will otherwise only get `undefined` and wonder why this is the case.
 
-⚠️ Solid.js supports [custom directives](https://www.solidjs.com/docs/latest/api#use___), which is a convenient pattern to tie custom behavior to elements, so we also have a `renderDirective` call, which augments `renderHook` to take a directive as first argument, accept an `initialValue` for the argument and a `targetElement` (string, HTMLElement or function returning a HTMLElement) in the `options` and also returns `arg` and `setArg` to read and manipulate the argument of the directive.
+⚠️ Instead of directives, Solid.js  2.0 provides improved [refs](https://www.solidjs.com/docs/latest/api#ref___) accepting an array of functions receiving the node, which can be used as a convenient pattern to tie custom behavior to elements, so we also have a `renderRef` call, which takes a single or an array of ref-functions as first argument, accept an `initialValue` for the argument and a `targetElement` (string, HTMLElement or function returning a HTMLElement) in the `options` and also supports an Array of multiple ref functions at the same time.
 
 ```ts
-function renderDirective<
+type RefFn = (node: HTMLElement) => void;
+function renderRef<
   Arg extends any,
   Elem extends HTMLElement
 >(
-  directive: (ref: Elem, arg: Accessor<Arg>) => void,
+  ref: RefFn | RefFn[],
   options?: {
     ...renderOptions,
-    initialValue: Arg,
     targetElement: 
       | Lowercase<Elem['nodeName']>
-      | Elem
-      | (() => Elem)
+      | HTMLElement
+      | (() => HTMLElement)
   }
-): Result & { arg: Accessor<Arg>, setArg: Setter<Arg> };
+): Result;
 ```
 
 This allows for very effective and concise testing of directives:
 
 ```ts
-const { asFragment, setArg } = renderDirective(myDirective);
+const [data, setData] = createSignal("works");
+const addDataValue = (data) => (node) => createEffect(data, (value) => { node.dataset.value = value; });
+const { asFragment } = renderRef(addDataValue(data));
 expect(asFragment()).toBe(
-  '<div data-directive="works"></div>'
+  '<div data-value="works"></div>'
 );
-setArg("perfect");
+setData("perfect");
 expect(asFragment()).toBe(
-  '<div data-directive="perfect"></div>'
+  '<div data-value="perfect"></div>'
 );
 ```
 
