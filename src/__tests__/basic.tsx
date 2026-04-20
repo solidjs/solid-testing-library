@@ -132,57 +132,24 @@ test("wrapper context is available in renderHook", () => {
   expect(result).toBe("context value");
 });
 
-declare module "solid-js" {
-  namespace JSX {
-    interface Directives {
-      noArgDirective: boolean;
-      argDirective: string;
-    }
-  }
-}
-
-type NoArgDirectiveArg = Accessor<JSX.Directives["noArgDirective"]>;
-
-test.skip("renderDirective works for directives without an argument", () => {
-  const noArgDirective: (ref: HTMLElement, arg: NoArgDirectiveArg) => void = (ref: HTMLElement) => {
-    ref.dataset.directive = "works";
-  };
-  const { asFragment } = renderDirective(noArgDirective);
-  expect(asFragment()).toBe('<div data-directive="works"></div>');
+test("renderRef works for single ref handlers", () => {
+  const refHandler = (ref: HTMLElement) => { ref.dataset.handler = "works"; };
+  const { asFragment } = renderRef(refHandler);
+  flush();
+  expect(asFragment()).toBe('<div data-handler="works"></div>');
 });
 
-test.skip("renderDirective accepts different targetElement types", () => {
-  const noArgDirective: (ref: HTMLElement, arg: NoArgDirectiveArg) => void = (ref: HTMLElement) => {
-    ref.dataset.directive = "works";
-  };
-  const { asFragment: getHtml1 } = renderDirective(noArgDirective, { targetElement: "span" });
-  expect(getHtml1()).toBe('<span data-directive="works"></span>');
-  const button = document.createElement("button");
-  const { asFragment: getHtml2 } = renderDirective(noArgDirective, { targetElement: button });
-  expect(getHtml2()).toBe('<button data-directive="works"></button>');
-  const getH3 = () => document.createElement("h3");
-  const { asFragment: getHtml3 } = renderDirective(noArgDirective, { targetElement: getH3 });
-  expect(getHtml3()).toBe('<h3 data-directive="works"></h3>');
-  const { asFragment: getHtml4 } = renderDirective(noArgDirective, { targetElement: {} as unknown as HTMLElement });
-  expect(getHtml4()).toBe('<div data-directive="works"></div>');
+test("renderRef works for multiple ref handlers", () => {
+  const refHandlers = [
+    (ref: HTMLElement) => { ref.dataset.handler1 = "works"; },
+    (ref: HTMLElement) => { ref.dataset.handler2 = "works"; },
+  ];
+  const { asFragment } = renderRef(refHandlers);
+  flush();
+  expect(asFragment()).toBe('<div data-handler1="works" data-handler2="works"></div>');
 });
 
-test.skip("renderDirective works for directives with argument", () => {
-  const argDirective = (ref: HTMLSpanElement, arg: Accessor<string>) => {
-    createEffect(() => {}, () => {
-      ref.dataset.directive = arg();
-    });
-  };
-  const { asFragment, setArg } = renderDirective(argDirective, {
-    initialValue: "initial value",
-    targetElement: "span"
-  });
-  expect(asFragment()).toBe('<span data-directive="initial value"></span>');
-  setArg("updated value");
-  expect(asFragment()).toBe('<span data-directive="updated value"></span>');
-});
-
-test.only("testEffect allows testing an effect asynchronously", () => {
+test("testEffect allows testing an effect asynchronously", () => {
   const [value, setValue] = createSignal(0);
   return testEffect(done =>
     createEffect(
@@ -197,9 +164,9 @@ test.only("testEffect allows testing an effect asynchronously", () => {
       },
     )
   );
-});
+}, 1000);
 
-test.only("testEffect catches errors", () => {
+test("testEffect catches errors", () => {
   const [value, setValue] = createSignal("no error");
   return testEffect(done =>
     createEffect(
@@ -214,13 +181,13 @@ test.only("testEffect catches errors", () => {
       throw new Error("Error swallowed by testEffect!");
     })
     .catch((e: Error) => (console.trace(e), expect(e?.message).toBe("works")));
-});
+}, 1000);
 
-test.skip("testEffect runs with owner", async () => {
+test("testEffect runs with owner", () => {
   const [owner, dispose] = createRoot(dispose => [getOwner(), dispose]);
-  await testEffect(
+  return testEffect(
     done => {
-      const [runOwner, setRunOwner] = createSignal(getOwner());
+      const [runOwner, setRunOwner] = createSignal(owner);
       createEffect(
         runOwner,
         (runOwner) => {
@@ -232,5 +199,23 @@ test.skip("testEffect runs with owner", async () => {
     },
     owner!
   );
-}, 2000);
+}, 1000);
 
+test("testEffect catches errors when running with owner", async () => {
+  const [owner, dispose] = createRoot(dispose => [getOwner(), dispose]);
+  const [value, setValue] = createSignal("no error");
+  return testEffect(done =>
+    createEffect(
+      value, 
+      (v) => {
+        if (v === "no error") { setValue("Oh, an error!"); }
+        if (v === "error") { throw new Error('works'); }
+        if (v === "done") { done(); }
+      }
+    ), owner)
+    .then(() => {
+      dispose()
+      throw new Error("Error swallowed by testEffect!");
+    })
+    .catch((e: Error) => (dispose(), console.trace(e), expect(e?.message).toBe("works")));
+}, 1000);

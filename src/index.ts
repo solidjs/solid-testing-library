@@ -222,6 +222,9 @@ function renderRef<A extends any, U extends A, E extends HTMLElement>(
   });
 }
 
+const rootOrOwner = (owner?: Owner, fn: (dispose?: () => void) => void) =>
+  owner ? runWithOwner(owner, fn) : createRoot(fn);
+
 /**
  * testEffect - provides an asynchronous scaffold to test effects in unit tests
  *
@@ -243,10 +246,10 @@ function testEffect<T>(
   testee: (done: undefined extends T ? ((result?: T) => void) : ((result: T) => void)) => void,
   owner: Owner | null = null
 ): Promise<T> {
-  return new Promise((done, fail) => createRoot(dispose => runWithOwner(owner || getOwner(), () => createErrorBoundary(
-    () => testee((result: any) => (done(result), dispose())),
-    (err: unknown) => (fail(err), queueMicrotask(() => dispose())),
-  )())));
+  return new Promise((done, fail) => rootOrOwner(owner, (dispose) => createErrorBoundary(
+    () => testee((result: any) => (done(result), dispose?.())),
+    (err: unknown) => (fail(err), queueMicrotask(() => dispose?.())),
+  )()));
 }
 
 function cleanupAtContainer(ref: Ref) {
