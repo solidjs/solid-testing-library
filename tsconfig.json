@@ -2,9 +2,9 @@
   "compilerOptions": {
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["es2020", "dom"],
+    "lib": ["es2022", "dom"],
     "skipLibCheck": true,
-    "target": "es2020",
+    "target": "es2022",
     "newLine": "LF",
     "moduleResolution": "node",
     "strict": true,

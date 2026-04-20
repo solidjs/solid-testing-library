@@ -49,8 +49,8 @@
     "build": "tsup src/index.ts --format esm,cjs --dts --clean; node -e 'require(`node:fs/promises`).copyFile(`dist/index.d.ts`, `dist/index.d.cts`)'",
     "typecheck": "tsc --noEmit; tsc --noEmit --project src/__tests__/tsconfig.json",
     "test": "vitest",
-    "test:watch": "npm test --watch",
-    "test:coverage": "npm test -- --coverage",
+    "test:watch": "vitest run --watch",
+    "test:coverage": "vitest run --coverage",
     "setup": "npm install && npm run validate",
     "prettier": "prettier -w src/**/* ./*.json ./vitest.config.js",
     "validate": "npm run typecheck && npm run test:coverage && npm run build"

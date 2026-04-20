@@ -12,7 +12,7 @@ import {
 } from "solid-js";
 import { For } from "@solidjs/web";
 import type { JSX } from "solid-js";
-import { render, renderRef, renderHook, screen, testEffect } from "..";
+import { render, renderDirective, renderRef, renderHook, screen, testEffect } from "..";
 import userEvent from "@testing-library/user-event";
 /*
 declare global {
@@ -132,6 +132,10 @@ test("wrapper context is available in renderHook", () => {
   expect(result).toBe("context value");
 });
 
+test("renderDirective is deprecated", () => {
+  expect(() => renderDirective((ref, arg) => console.log(ref, arg()))).toThrow();
+});
+
 test("renderRef works for single ref handlers", () => {
   const refHandler = (ref: HTMLElement) => { ref.dataset.handler = "works"; };
   const { asFragment } = renderRef(refHandler);
@@ -172,7 +176,7 @@ test("testEffect catches errors", () => {
     createEffect(
       value, 
       (v) => {
-        if (v === "no error") { setValue("Oh, an error!"); }
+        if (v === "no error") { setValue("error"); }
         if (v === "error") { throw new Error('works'); }
         if (v === "done") { done(); }
       }
@@ -180,7 +184,7 @@ test("testEffect catches errors", () => {
     .then(() => {
       throw new Error("Error swallowed by testEffect!");
     })
-    .catch((e: Error) => (console.trace(e), expect(e?.message).toBe("works")));
+    .catch((e: Error) => expect(e?.message).toBe("works"));
 }, 1000);
 
 test("testEffect runs with owner", () => {
@@ -208,7 +212,7 @@ test("testEffect catches errors when running with owner", async () => {
     createEffect(
       value, 
       (v) => {
-        if (v === "no error") { setValue("Oh, an error!"); }
+        if (v === "no error") { setValue("error"); }
         if (v === "error") { throw new Error('works'); }
         if (v === "done") { done(); }
       }
@@ -217,5 +221,5 @@ test("testEffect catches errors when running with owner", async () => {
       dispose()
       throw new Error("Error swallowed by testEffect!");
     })
-    .catch((e: Error) => (dispose(), console.trace(e), expect(e?.message).toBe("works")));
+    .catch((e: Error) => (dispose(), expect(e?.message).toBe("works")));
 }, 1000);

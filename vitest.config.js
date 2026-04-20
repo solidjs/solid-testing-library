@@ -7,7 +7,7 @@ export default defineConfig({
     coverage: {
       reporter: ["lcov", "text"],
       include: ["src/index.ts"],
-      exclude: ["src/types.ts"]
+      exclude: ["src/types.ts"],
     },
     watch: false,
     globals: true,

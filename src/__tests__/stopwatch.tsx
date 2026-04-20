@@ -52,5 +52,5 @@ test("unmounts a component", async () => {
 
   // Just wait to see if the interval is cleared or not.
   // If it's not, then we'll call setState on an unmounted component and get an error.
-  await wait((() => expect(console.error).not.toHaveBeenCalled()) as any);
+  await wait(50).then(() => expect(console.error).not.toHaveBeenCalled());
 });

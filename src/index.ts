@@ -41,7 +41,7 @@ declare global {
  * renderRef(ref(arg), { targetElement });
  * ```
  */
-export function renderDirective(...args: any[]) {}
+export function renderDirective(...args: any[]) { throw new Error('Solid-2.0 no longer supports directives. Use ref instead.'); }
 
 /* istanbul ignore next */
 if (typeof process === 'undefined' || !process.env.STL_SKIP_AUTO_CLEANUP) {
@@ -124,6 +124,9 @@ function render(ui: Ui, options: Options = {}): Result {
   } as Result;
 }
 
+const hasInitialProps = <A>(options: RenderHookOptions<A> | A | {}): options is RenderHookOptions<A> => 
+  Array.isArray((options as RenderHookOptions<A>)?.initialProps);
+
 /**
  * "Renders" a hook to test it
  * @param hook {() => unknown)} a hook or primitive
@@ -143,19 +146,20 @@ function render(ui: Ui, options: Options = {}): Result {
  * - `result.owner` - the reactive owner in which the hook is run (in order to run other reactive code in the same context with [`runWithOwner`](https://www.solidjs.com/docs/latest/api#runwithowner))
  * - `result.cleanup()` - calls the cleanup function of the hook/primitive
  */
-function renderHook<H extends (...args: any) => unknown, A = Parameters<H>, R = ReturnType<H>>(
-  hook: H,
-  options: A | RenderHookOptions<A> = {},
+function renderHook<A extends [] | [any, ...any[]], R>(
+  hook: (...args: A) => R,
+  options: A | RenderHookOptions<A> = [] as A,
 ): RenderHookResult<R> {
-  const initialProps: A = options instanceof Object
-    ? 'initialProps' in options 
-      ? options.initialProps
-      : Array.isArray(options.initialProps) && options.initialProps
-    : [] as A
+  const initialProps: A = Array.isArray(options as A) 
+    ? options as A
+    : hasInitialProps(options) 
+    ? options.initialProps as A
+    : [] as A;
+  const wrapper = Object.hasOwn(options, 'wrapper') && (options as RenderHookOptions<A>).wrapper!;
   
   const container = document.createElement('div');
   document.body.appendChild(container);
-  let result: R;
+  let result;
   let owner: Owner | null = null;
   const Comp = () => {
     flush();
@@ -163,11 +167,12 @@ function renderHook<H extends (...args: any) => unknown, A = Parameters<H>, R = 
     owner = getOwner();
     return null;
   }
-  const wrapped = options.wrapper
-    ? () => createComponent(options.wrapper, { get children() { return createComponent(Comp, {}); } })
+  const wrapped = wrapper
+    ? () => createComponent(wrapper, { get children() { return createComponent(Comp, {}); } })
     : () => createComponent(Comp, {});
   const dispose = solidRender(wrapped, container);
   mountedContainers.add({ container, dispose });
+  flush();
   return { result: result!, cleanup: dispose, owner };
 }
 
