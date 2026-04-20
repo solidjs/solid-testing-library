@@ -13,5 +13,5 @@
     "module": "commonjs",
     "types": ["node"]
   },
-  "include": ["src/index.ts", "src/types.ts"]
+  "include": ["src/index.ts", "src/types.ts", "vitest.config.ts"]
 }
