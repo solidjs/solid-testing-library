@@ -1,6 +1,6 @@
 import type { Accessor, Component, JSX, Owner, Setter } from "solid-js";
 import { queries } from "@testing-library/dom";
-import type { Queries, BoundFunctions, prettyFormat } from "@testing-library/dom";
+import type { Queries, BoundFunctions, PrettyDOMOptions } from "@testing-library/dom";
 
 export interface Ref {
   container?: HTMLElement;
@@ -21,7 +21,7 @@ export interface Options {
 export type DebugFn = (
   baseElement?: HTMLElement | HTMLElement[],
   maxLength?: number,
-  options?: prettyFormat.OptionsReceived
+  options?: PrettyDOMOptions
 ) => void;
 
 export type Result = BoundFunctions<typeof queries> & {

@@ -6,12 +6,12 @@
     "skipLibCheck": true,
     "target": "es2022",
     "newLine": "LF",
-    "moduleResolution": "node",
     "strict": true,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "outDir": "./dist",
-    "module": "commonjs"
+    "module": "commonjs",
+    "types": ["node"]
   },
   "include": ["src/index.ts", "src/types.ts"]
 }

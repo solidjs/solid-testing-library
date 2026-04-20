@@ -1,4 +1,4 @@
-import { getQueriesForElement, prettyDOM } from "@testing-library/dom";
+import { getQueriesForElement, prettyDOM, type PrettyDOMOptions } from "@testing-library/dom";
 import {
   createComponent,
   createErrorBoundary,
@@ -19,7 +19,7 @@ import type {
   RenderHookResult,
   RenderHookOptions,
   RenderRefOptions,
-} from "./types";
+} from "./types.ts";
 
 /* type extension for hydration context */
 declare global {
@@ -41,7 +41,7 @@ declare global {
  * renderRef(ref(arg), { targetElement });
  * ```
  */
-export function renderDirective(...args: any[]) { throw new Error('Solid-2.0 no longer supports directives. Use ref instead.'); }
+export function renderDirective(..._args: any[]) { throw new Error('Solid-2.0 no longer supports directives. Use ref instead.'); }
 
 /* istanbul ignore next */
 if (typeof process === 'undefined' || !process.env.STL_SKIP_AUTO_CLEANUP) {
@@ -115,7 +115,7 @@ function render(ui: Ui, options: Options = {}): Result {
     asFragment: () => container?.innerHTML as string,
     container,
     baseElement,
-    debug: (el = baseElement, maxLength, options) =>
+    debug: (el = baseElement, maxLength?: number, options?: PrettyDOMOptions) =>
       Array.isArray(el)
         ? el.forEach(e => console.log(prettyDOM(e, maxLength, options)))
         : console.log(prettyDOM(el, maxLength, options)),
@@ -227,7 +227,7 @@ function renderRef<A extends any, U extends A, E extends HTMLElement>(
   });
 }
 
-const rootOrOwner = (owner?: Owner, fn: (dispose?: () => void) => void) =>
+const rootOrOwner = (owner: Owner | null | undefined, fn: (dispose?: () => void) => void) =>
   owner ? runWithOwner(owner, fn) : createRoot(fn);
 
 /**

@@ -68,7 +68,7 @@
     "prettier": "^3.8.1",
     "solid-js": "2.0.0-beta.7",
     "tsup": "8.5.1",
-    "typescript": "^6.0.2",
+    "typescript": "^5.7.2",
     "vite-plugin-solid": "3.0.0-next.4",
     "vitest": "4.1.4"
   },
