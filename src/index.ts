@@ -41,7 +41,9 @@ declare global {
  * renderRef(ref(arg), { targetElement });
  * ```
  */
-export function renderDirective(..._args: any[]) { throw new Error('Solid-2.0 no longer supports directives. Use ref instead.'); }
+export function renderDirective(_directive: (_ref: HTMLElement, _arg: Function) => void, _options: { targetElement?: HTMLElement | string } = {}): void { 
+  throw new Error('Solid-2.0 no longer supports directives. Use ref instead.');
+}
 
 /* istanbul ignore next */
 if (typeof process === 'undefined' || !process.env.STL_SKIP_AUTO_CLEANUP) {
@@ -208,7 +210,7 @@ function renderHook<A extends [] | [any, ...any[]], R>(
  * - `result.`[queries] - testing library queries, see https://testing-library.com/docs/queries/about)
  */
 function renderRef<A extends any, U extends A, E extends HTMLElement>(
-  ref: (ref: E) => void,
+  ref: ((ref: E) => void) | ((ref: E) => void)[],
   options: RenderRefOptions<U, E> = {}
 ): Result {
   return render(() => {

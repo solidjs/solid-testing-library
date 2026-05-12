@@ -6,12 +6,10 @@ import {
   flush,
   useContext,
   ParentComponent,
-  Accessor,
+  For,
   getOwner,
   createRoot,
 } from "solid-js";
-import { For } from "@solidjs/web";
-import type { JSX } from "solid-js";
 import { render, renderDirective, renderRef, renderHook, screen, testEffect } from "..";
 import userEvent from "@testing-library/user-event";
 /*
@@ -148,7 +146,7 @@ test("renderRef works for multiple ref handlers", () => {
     (ref: HTMLElement) => { ref.dataset.handler1 = "works"; },
     (ref: HTMLElement) => { ref.dataset.handler2 = "works"; },
   ];
-  const { asFragment } = renderRef(refHandlers);
+  const { asFragment } = renderRef(refHandlers, { targetElement: document.createElement('div') });
   flush();
   expect(asFragment()).toBe('<div data-handler1="works" data-handler2="works"></div>');
 });

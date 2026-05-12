@@ -1,4 +1,5 @@
-import type { Accessor, Component, JSX, Owner, Setter } from "solid-js";
+import type { Accessor, Component, Owner, Setter } from "solid-js";
+import type { JSX } from "@solidjs/web";
 import { queries } from "@testing-library/dom";
 import type { Queries, BoundFunctions, PrettyDOMOptions } from "@testing-library/dom";
 

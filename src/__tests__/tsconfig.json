@@ -1,7 +1,9 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "types": ["vitest/globals", "@testing-library/jest-dom"]
+    "types": ["vitest/globals", "@testing-library/jest-dom", "node"],
+    "module": "preserve",
+    "moduleResolution": "bundler"
   },
   "include": ["./*.tsx"]
 }
