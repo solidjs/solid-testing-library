@@ -255,7 +255,7 @@ function testEffect<T>(
 ): Promise<T> {
   return new Promise((done, fail) => rootOrOwner(owner, (dispose) => createErrorBoundary(
     () => testee((result: any) => (done(result), dispose?.())),
-    (err: unknown) => (fail(err), queueMicrotask(() => dispose?.())),
+    (err) => (fail(err()), queueMicrotask(() => dispose?.())),
   )()));
 }
 
