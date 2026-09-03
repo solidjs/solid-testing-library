@@ -61,6 +61,8 @@ A working Vite template setup with `solid-testing-library` and TypeScript suppor
 
 ## Docs
 
+Our Solid documentation has a [testing guide](https://docs.solidjs.com/guides/testing).
+
 See the [docs](https://testing-library.com/docs/preact-testing-library/intro) over at the Testing Library website.
 
 There are several key differences, though:
