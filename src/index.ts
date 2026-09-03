@@ -137,7 +137,7 @@ function render(ui: Ui, options: Options = {}): Result {
  * @returns {RenderHookResult} references and tools to test the hook/primitive
  *
  * ```ts
- * const { result } = render(useI18n, { wrapper: I18nProvider });
+ * const { result } = renderHook(useI18n, { wrapper: I18nProvider });
  * expect(result.t('test')).toBe('works');
  * ```
  * ### Options
@@ -187,7 +187,7 @@ export function renderHook<A extends any[], R>(
  *
  * ```ts
  * const called = vi.fn()
- * const { getByText, baseContainer } = render(onClickOutside, { initialValue: called });
+ * const { getByText, baseContainer } = renderDirective(onClickOutside, { initialValue: called });
  * expect(called).not.toBeCalled();
  * fireEvent.click(baseContainer);
  * expect(called).toBeCalled();
