@@ -59,7 +59,6 @@
     "@testing-library/dom": "^10.4.2"
   },
   "devDependencies": {
-    "@solidjs/signals": "2.0.0-rc.16",
     "@solidjs/vite-plugin": "3.0.0-next.50",
     "@solidjs/web": "2.0.0-rc.16",
     "@testing-library/jest-dom": "^7.0.1",
@@ -75,7 +74,6 @@
   },
   "peerDependencies": {
     "solid-js": ">=2.0.0-0",
-    "@solidjs/web": ">=2.0.0-0",
-    "@solidjs/signals": ">=2.0.0-0"
+    "@solidjs/web": ">=2.0.0-0"
   }
 }
