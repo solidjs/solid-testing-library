@@ -1,5 +1,5 @@
 import { getQueriesForElement, prettyDOM, type PrettyDOMOptions } from "@testing-library/dom";
-import { createErrorBoundary } from "@solidjs/signals";
+import { createErrorBoundary } from "solid-js/internal";
 import {
   createComponent,
   createRoot,
