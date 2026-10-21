@@ -18,7 +18,7 @@
   "homepage": "https://github.com/solidjs/solid-testing-library#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/solidjs/solid-testing-library"
+    "url": "git+https://github.com/solidjs/solid-testing-library.git"
   },
   "bugs": {
     "url": "https://github.com/solidjs/solid-testing-library/issues"
