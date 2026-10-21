@@ -3,7 +3,7 @@ import { onCleanup } from "solid-js";
 import { cleanup, render } from "..";
 import { render as solidRender, type JSX } from "@solidjs/web";
 
-vi.mock(import("@solidjs/web"), async (importOriginal) => {
+vi.mock(import("@solidjs/web"), async importOriginal => {
   const solidWeb = await importOriginal();
   const renderFn = vi.fn(solidWeb.render);
   return { ...solidWeb, render: renderFn };
@@ -46,15 +46,22 @@ test("cleanup warns if dispose is not a function", () => {
 
 describe("`findByLabelText` does not break when used in multiple test cases #66", () => {
   test("finds the input once", async () => {
-    const { findByLabelText } = render(() => <label>label text <input type="text" /></label>);
+    const { findByLabelText } = render(() => (
+      <label>
+        label text <input type="text" />
+      </label>
+    ));
     const el = await findByLabelText(/label text/);
     expect(el).toBeInstanceOf(HTMLInputElement);
   });
-  
+
   test("finds the input twice", async () => {
-    const { findByLabelText } = render(() => <label>label text <input type="text" /></label>);
+    const { findByLabelText } = render(() => (
+      <label>
+        label text <input type="text" />
+      </label>
+    ));
     const el = await findByLabelText(/label text/);
     expect(el).toBeInstanceOf(HTMLInputElement);
   });
 });
-

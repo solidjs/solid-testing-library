@@ -1,7 +1,7 @@
 import { getQueriesForElement, prettyDOM, type PrettyDOMOptions } from "@testing-library/dom";
+import { createErrorBoundary } from "@solidjs/signals";
 import {
   createComponent,
-  createErrorBoundary,
   createRoot,
   flush,
   getOwner,
@@ -136,7 +136,7 @@ const hasInitialProps = <A>(options: RenderHookOptions<A> | A | {}): options is 
  * @returns {RenderHookResult} references and tools to test the hook/primitive
  *
  * ```ts
- * const { result } = render(useI18n, { wrapper: I18nProvider });
+ * const { result } = renderHook(useI18n, { wrapper: I18nProvider });
  * expect(result.t('test')).toBe('works');
  * ```
  * ### Options
@@ -186,7 +186,7 @@ function renderHook<A extends [] | [any, ...any[]], R>(
  *
  * ```ts
  * const called = vi.fn()
- * const { getByText, baseContainer } = render(onClickOutside, { initialValue: called });
+ * const { getByText, baseContainer } = renderRef(onClickOutside, { initialValue: called });
  * expect(called).not.toBeCalled();
  * fireEvent.click(baseContainer);
  * expect(called).toBeCalled();
@@ -210,7 +210,7 @@ function renderHook<A extends [] | [any, ...any[]], R>(
  * - `result.`[queries] - testing library queries, see https://testing-library.com/docs/queries/about)
  */
 function renderRef<A extends any, U extends A, E extends HTMLElement>(
-  ref: ((ref: E) => void) | ((ref: E) => void)[],
+  ref: ((ref: E) => any) | ((ref: E) => any)[],
   options: RenderRefOptions<U, E> = {}
 ): Result {
   return render(() => {
@@ -224,9 +224,13 @@ function renderRef<A extends any, U extends A, E extends HTMLElement>(
           ? options.targetElement()
           : undefined)) ||
       document.createElement("div");
-    onSettled(() => Array.isArray(ref) ? ref.forEach(r => r(targetElement as E)) : ref(targetElement as E));
+    onSettled(() => {
+      Array.isArray(ref)
+      ? ref.forEach(r => r(targetElement as E))
+      : ref(targetElement as E)
+    });
     return targetElement;
-  });
+  }, options);
 }
 
 const rootOrOwner = (owner: Owner | null | undefined, fn: (dispose?: () => void) => void) =>
@@ -255,7 +259,7 @@ function testEffect<T>(
 ): Promise<T> {
   return new Promise((done, fail) => rootOrOwner(owner, (dispose) => createErrorBoundary(
     () => testee((result: any) => (done(result), dispose?.())),
-    (err) => (fail(err()), queueMicrotask(() => dispose?.())),
+    (err: () => unknown) => (fail(err()), queueMicrotask(() => dispose?.())),
   )()));
 }
 

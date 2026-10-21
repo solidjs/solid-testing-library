@@ -1,5 +1,6 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from "vitest/config";
-import solidPlugin from "vite-plugin-solid";
+import solidPlugin from "@solidjs/vite-plugin";
 
 export default defineConfig({
   plugins: [solidPlugin()],
@@ -8,11 +9,12 @@ export default defineConfig({
       enabled: true,
       reporter: ["lcov", "text"],
       include: ["src/index.*"],
-      exclude: ["src/types.ts"],
+      exclude: ["src/types.ts"]
     },
     watch: false,
     globals: true,
     clearMocks: true,
-    include: ["src/__tests__/*.tsx"]
-  },
+    include: ["src/__tests__/*.tsx"],
+    pool: "vmThreads"
+  }
 });

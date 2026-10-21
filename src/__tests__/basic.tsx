@@ -8,7 +8,7 @@ import {
   ParentComponent,
   For,
   getOwner,
-  createRoot,
+  createRoot
 } from "solid-js";
 import { render, renderDirective, renderRef, renderHook, screen, testEffect } from "..";
 import userEvent from "@testing-library/user-event";
@@ -26,9 +26,9 @@ test("render calls createEffect immediately (after flushing)", () => {
   }
 
   render(() => <Comp />);
-  
+
   flush();
-  
+
   expect(cb).toHaveBeenCalledTimes(1);
 });
 
@@ -47,7 +47,7 @@ test("userEvent triggers createEffect calls (after flushing)", async () => {
     const [count, setCount] = createSignal(0);
 
     createEffect(count, cb);
-    
+
     flush();
 
     return <button onClick={() => setCount(count() + 1)}>{count()}</button>;
@@ -63,16 +63,20 @@ test("userEvent triggers createEffect calls (after flushing)", async () => {
   expect(cb).toHaveBeenCalledTimes(1);
 });
 
-test("calls to hydrate will run effects", () => new Promise<void>((resolve) => {
-  globalThis._$HY ??= { events: [], completed: new WeakSet(), r: {} };
-  
-  function Comp() {
-    createEffect(() => true, () => resolve());
-    return [];
-  }
+test("calls to hydrate will run effects", () =>
+  new Promise<void>(resolve => {
+    globalThis._$HY ??= { events: [], completed: new WeakSet(), r: {} };
 
-  render(() => <Comp />, { hydrate: true });
-}));
+    function Comp() {
+      createEffect(
+        () => true,
+        () => resolve()
+      );
+      return [];
+    }
+
+    render(() => <Comp />, { hydrate: true });
+  }));
 
 test("queries should not return elements outside of the container", () => {
   const { container, getAllByText } = render(() => <div>Some text...</div>);
@@ -91,20 +95,22 @@ test("wrapper option works correctly", () => {
 
 test("wrapper option includes context", async () => {
   const Context = createContext<string>("test");
-  const Wrapper: ParentComponent = props => (
-    <Context value="works">{props.children}</Context>
-  );
+  const Wrapper: ParentComponent = props => <Context value="works">{props.children}</Context>;
   const { asFragment } = render(() => <div>{useContext(Context)}</div>, { wrapper: Wrapper });
   expect(asFragment()).toBe("<div>works</div>");
 });
 
 test("For does not need a parent wrapper", () => {
-  const { getByText } = render(() => <For each={['a', 'b', 'c']}>{(i) => <span>{i()}</span>}</For>);
-  expect(getByText('b')).toBeInTheDocument();
+  const { getByText } = render(() => (
+    <For each={["a", "b", "c"]} keyed={false}>
+      {i => <span>{i()}</span>}
+    </For>
+  ));
+  expect(getByText("b")).toBeInTheDocument();
 });
 
 test("renderHook works correctly", () => {
-  const getTruth = () => 42
+  const getTruth = () => 42;
   const { result } = renderHook(getTruth);
   expect(result).toBe(42);
 });
@@ -126,7 +132,7 @@ test("wrapper context is available in renderHook", () => {
     <Context value="context value">{props.children}</Context>
   );
   const { result } = renderHook(testHook, { wrapper: Wrapper });
-  
+
   expect(result).toBe("context value");
 });
 
@@ -135,7 +141,9 @@ test("renderDirective is deprecated", () => {
 });
 
 test("renderRef works for single ref handlers", () => {
-  const refHandler = (ref: HTMLElement) => { ref.dataset.handler = "works"; };
+  const refHandler = (ref: HTMLElement) => {
+    ref.dataset.handler = "works";
+  };
   const { asFragment } = renderRef(refHandler);
   flush();
   expect(asFragment()).toBe('<div data-handler="works"></div>');
@@ -143,42 +151,60 @@ test("renderRef works for single ref handlers", () => {
 
 test("renderRef works for multiple ref handlers", () => {
   const refHandlers = [
-    (ref: HTMLElement) => { ref.dataset.handler1 = "works"; },
-    (ref: HTMLElement) => { ref.dataset.handler2 = "works"; },
+    (ref: HTMLElement) => {
+      ref.dataset.handler1 = "works";
+    },
+    (ref: HTMLElement) => {
+      ref.dataset.handler2 = "works";
+    }
   ];
-  const { asFragment } = renderRef(refHandlers, { targetElement: document.createElement('div') });
+  const { asFragment } = renderRef(refHandlers, { targetElement: document.createElement("div") });
   flush();
   expect(asFragment()).toBe('<div data-handler1="works" data-handler2="works"></div>');
+});
+
+test("renderRef does not break the reactivity by returning refs from a ref handler's return value into onSettled", () => {
+  expect(() => {
+    renderRef(x => x);
+    flush();
+  }).not.toThrow();
+});
+
+test("renderRef passes options", () => {
+  const Ctx = createContext("default");
+  const Wrapper: ParentComponent = props => <Ctx value="from-wrapper">{props.children}</Ctx>;
+  renderRef(() => expect(useContext(Ctx)).toBe("from-wrapper"), { wrapper: Wrapper });
 });
 
 test("testEffect allows testing an effect asynchronously", () => {
   const [value, setValue] = createSignal(0);
   return testEffect(done =>
-    createEffect(
-      value,
-      (v) => {
-        if (v === 0) {
-          setValue(1);
-        } else {
-          expect(v).toBe(1);
-          done();
-        }
-      },
-    )
+    createEffect(value, v => {
+      if (v === 0) {
+        setValue(1);
+      } else {
+        expect(v).toBe(1);
+        done();
+      }
+    })
   );
 }, 1000);
 
 test("testEffect catches errors", () => {
   const [value, setValue] = createSignal("no error");
   return testEffect(done =>
-    createEffect(
-      value, 
-      (v) => {
-        if (v === "no error") { setValue("error"); }
-        if (v === "error") { throw new Error('works'); }
-        if (v === "done") { done(); }
+    createEffect(value, v => {
+      if (v === "no error") {
+        setValue("error");
       }
-    ))
+      if (v === "error") {
+        throw new Error("works");
+      }
+      if (v === "done") {
+        done();
+      }
+    })
+  )
     .then(() => {
       throw new Error("Error swallowed by testEffect!");
     })
@@ -187,36 +213,36 @@ test("testEffect catches errors", () => {
 
 test("testEffect runs with owner", () => {
   const [owner, dispose] = createRoot(dispose => [getOwner(), dispose]);
-  return testEffect(
-    done => {
-      const [runOwner, setRunOwner] = createSignal(owner);
-      createEffect(
-        runOwner,
-        (runOwner) => {
-          expect(runOwner).toBe(owner);
-          done();
-          dispose();
-        }
-      )
-    },
-    owner!
-  );
+  return testEffect(done => {
+    const [runOwner, setRunOwner] = createSignal(owner);
+    createEffect(runOwner, runOwner => {
+      expect(runOwner).toBe(owner);
+      done();
+      dispose();
+    });
+  }, owner!);
 }, 1000);
 
 test("testEffect catches errors when running with owner", async () => {
   const [owner, dispose] = createRoot(dispose => [getOwner(), dispose]);
   const [value, setValue] = createSignal("no error");
-  return testEffect(done =>
-    createEffect(
-      value, 
-      (v) => {
-        if (v === "no error") { setValue("error"); }
-        if (v === "error") { throw new Error('works'); }
-        if (v === "done") { done(); }
-      }
-    ), owner)
+  return testEffect(
+    done =>
+      createEffect(value, v => {
+        if (v === "no error") {
+          setValue("error");
+        }
+        if (v === "error") {
+          throw new Error("works");
+        }
+        if (v === "done") {
+          done();
+        }
+      }),
+    owner
+  )
     .then(() => {
-      dispose()
+      dispose();
       throw new Error("Error swallowed by testEffect!");
     })
     .catch((e: Error) => (dispose(), expect(e?.message).toBe("works")));

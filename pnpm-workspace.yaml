@@ -1,5 +1,10 @@
 allowBuilds:
   esbuild: true
+minimumReleaseAgeExclude:
+  - '@solidjs/signals@2.0.0-rc.16'
+  - '@solidjs/web@2.0.0-rc.16'
+  - solid-js@2.0.0-rc.16
+  - vite@8.3.5
 onlyBuiltDependencies:
   - esbuild
 

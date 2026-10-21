@@ -9,9 +9,10 @@
     "strict": true,
     "jsx": "preserve",
     "jsxImportSource": "@solidjs/web",
+    "rootDir": "./src",
     "outDir": "./dist",
     "module": "commonjs",
     "types": ["node"]
   },
-  "include": ["src/index.ts", "src/types.ts", "vitest.config.ts"]
+  "include": ["src/index.ts", "src/types.ts"]
 }
