@@ -1,6 +1,6 @@
 {
   "name": "@solidjs/testing-library",
-  "version": "0.8.9",
+  "version": "0.8.11",
   "description": "Simple and complete Solid testing utilities that encourage good testing practices.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -73,8 +73,8 @@
     "vitest": "^3.2.4"
   },
   "peerDependencies": {
-    "@solidjs/router": ">=0.9.0",
-    "solid-js": ">=1.0.0"
+    "@solidjs/router": ">=0.9.0 <2",
+    "solid-js": "^1.0.0"
   },
   "peerDependenciesMeta": {
     "@solidjs/router": {
